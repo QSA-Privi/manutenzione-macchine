@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scheda Manutenzione Macchina</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#f5a623;--danger:#dc3545;--success:#28a745;--border:#dee2e6;--muted:#6c757d;--surface:#f8f9fa;--admin:#7c3aed;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-height:100vh;padding-bottom:90px;}
+.app-header{background:#fff;border-bottom:3px solid var(--accent);padding:14px 20px;position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-wrap:wrap;gap:10px;}
+.hl{display:flex;align-items:center;gap:12px;}
+.hbadge{background:var(--accent);color:#000;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:4px 10px;letter-spacing:1.5px;border-radius:3px;}
+.htitle{font-size:1rem;font-weight:600;}
+.hsub{font-size:.7rem;color:var(--muted);}
+.htime{font-family:'IBM Plex Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--accent);}
+.hlinks{font-size:.72rem;}
+.hlinks a{color:var(--muted);text-decoration:none;margin-left:10px;}
+.hlinks a:hover{color:var(--accent);}
+.adminbtn{background:#fff;border:1px solid var(--admin);color:var(--admin);border-radius:4px;padding:6px 12px;font-size:.72rem;font-weight:600;cursor:pointer;}
+.adminbtn.on{background:var(--admin);color:#fff;}
+.main{max-width:900px;margin:0 auto;padding:22px 16px;}
+.sec{background:#fff;border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.sec.admin-sec{border-color:var(--admin);}
+.sec-h{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600;font-size:.92rem;}
+.sec.admin-sec .sec-h{background:#f3ecff;}
+.sec-b{padding:18px;}
+.mcard{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.mf-l{font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+.mf-v{font-size:.88rem;font-weight:500;}
+.mf-v a{color:#0d6efd;}
+.scad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.scad{background:#fff;border:2px solid var(--border);border-radius:6px;padding:14px;position:relative;}
+.scad.ok{border-color:var(--success);}
+.scad.warn{border-color:#fd7e14;}
+.scad.scad-out{border-color:var(--danger);background:#fff8f8;}
+.scad.mai{border-color:#adb5bd;background:var(--surface);}
+.scad-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:6px;flex-wrap:wrap;}
+.scad-freq{font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:600;}
+.badge{font-size:.65rem;padding:3px 8px;border-radius:3px;font-weight:600;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.b-ok{background:#d4edda;color:#155724;}
+.b-warn{background:#fff3cd;color:#856404;}
+.b-out{background:#f8d7da;color:#721c24;}
+.b-mai{background:#e2e3e5;color:#383d41;}
+.scad-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:5px;}
+.scad-dt{font-size:.7rem;font-family:'IBM Plex Mono',monospace;color:var(--muted);}
+.scad-admin{margin-top:8px;display:flex;gap:6px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:600px){.g2,.g3{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.field input,.field textarea,.field select{background:#fff;border:1px solid var(--border);border-radius:4px;color:#212529;font-size:.88rem;padding:9px 11px;width:100%;font-family:inherit;}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:70px;}
+.tlabel{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.tipo-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.tbtn{background:#fff;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;padding:7px 14px;cursor:pointer;font-weight:600;}
+.tbtn.sel{background:#fff3cd;border-color:var(--accent);color:#856404;}
+.igwrap{display:flex;gap:12px;}
+.igbtn{flex:1;padding:12px;border:2px solid var(--border);border-radius:4px;background:#fff;color:var(--muted);font-size:.88rem;font-weight:600;cursor:pointer;text-align:center;}
+.igbtn.ok{background:#d4edda;border-color:var(--success);color:#155724;}
+.igbtn.nok{background:#f8d7da;border-color:var(--danger);color:#721c24;}
+.s-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:32px 0;}
+.icard{background:#fff;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:10px;}
+.icard.nok{border-left:4px solid var(--danger);background:#fff8f8;}
+.icard-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.itipo{font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:600;padding:3px 8px;border-radius:3px;background:#fff3cd;color:#856404;}
+.itipo.str{background:#f8d7da;color:#721c24;}
+.idt{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--muted);}
+.imn{font-size:.78rem;color:var(--muted);}
+.idesc{font-size:.85rem;line-height:1.5;margin-bottom:8px;}
+.iiig{font-size:.72rem;font-family:'IBM Plex Mono',monospace;padding:3px 8px;border-radius:3px;display:inline-block;font-weight:600;}
+.iig-ok{background:#d4edda;color:#155724;}
+.iig-nok{background:#f8d7da;color:#721c24;}
+.chem-list{display:flex;flex-direction:column;gap:8px;}
+.chem-item{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-size:.88rem;}
+.picto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;}
+.picto{text-align:center;font-size:.65rem;color:var(--muted);line-height:1.3;}
+.picto img{width:56px;height:56px;object-fit:contain;display:block;margin:0 auto 4px;}
+.picto-pick{border:2px solid var(--border);border-radius:6px;padding:8px;cursor:pointer;}
+.picto-pick.sel{border-color:var(--admin);background:#f3ecff;}
+.subbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid var(--accent);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -2px 8px rgba(0,0,0,.06);z-index:190;flex-wrap:wrap;gap:8px;}
+.subinfo{font-size:.76rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+.subbtn{background:var(--accent);color:#000;border:none;border-radius:4px;padding:11px 28px;font-size:.92rem;font-weight:600;cursor:pointer;}
+.subbtn:hover{background:#e09510;}
+.subbtn:disabled{opacity:.5;cursor:not-allowed;}
+.btnsm{background:#fff;border:1px solid var(--border);border-radius:4px;padding:6px 12px;font-size:.75rem;font-weight:600;cursor:pointer;color:var(--muted);}
+.btnsm:hover{border-color:var(--accent);color:#212529;}
+.btnsm.danger{color:var(--danger);border-color:var(--danger);}
+.btnsm.primary{background:var(--admin);border-color:var(--admin);color:#fff;}
+.plan-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;flex-wrap:wrap;}
+.plan-row .pinfo{flex:1;min-width:200px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:400;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:#fff;border:1px solid var(--border);border-radius:8px;padding:30px;max-width:420px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.12);}
+.modal-icon{font-size:2.8rem;margin-bottom:14px;}
+.modal-title{font-size:1.15rem;font-weight:600;margin-bottom:7px;}
+.modal-msg{color:var(--muted);font-size:.86rem;line-height:1.6;white-space:pre-wrap;text-align:left;}
+.modal-close{margin-top:22px;background:var(--accent);color:#000;border:none;padding:9px 26px;border-radius:4px;font-weight:600;cursor:pointer;}
+.modal.small{max-width:340px;}
+.idx-list{display:flex;flex-direction:column;gap:8px;}
+.idx-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:6px;text-decoration:none;color:#212529;}
+.idx-item:hover{border-color:var(--accent);}
+.idx-badge{background:var(--accent);color:#000;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:4px 9px;border-radius:3px;}
+@media print{.app-header,.subbar,.adminbtn,.hlinks,.btnsm{display:none!important;}body{padding-bottom:0;}}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="hl">
+    <div class="hbadge" id="h-badge">—</div>
+    <div><div class="htitle" id="h-title">Caricamento...</div><div class="hsub" id="h-sub"></div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="hlinks"><a href="index.html">Tutte le macchine</a><a href="calendario.html">Calendario</a></div>
+    <button class="adminbtn" id="admin-toggle" onclick="toggleAdmin()">🔒 Amministratore</button>
+    <div class="htime" id="live-clock">--:--</div>
+  </div>
+</header>
+
+<div class="main" id="main-content" style="display:none;">
+  <div class="sec">
+    <div class="sec-h">🔧 Dati macchina</div>
+    <div class="sec-b">
+      <div class="mcard" id="mcard"></div>
+      <div id="manuale-link" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <div class="sec admin-sec" id="admin-anagrafica" style="display:none;">
+    <div class="sec-h">🔒 Modifica dati macchina</div>
+    <div class="sec-b">
+      <div class="g3" id="admin-fields" style="margin-bottom:12px;"></div>
+      <div class="field" style="margin-bottom:12px;"><label>Link manuale (Drive)</label><input type="text" id="a-link"></div>
+      <button class="btnsm primary" onclick="salvaAnagrafica()">💾 Salva dati macchina</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">🧪 Prodotti chimici utilizzati</div>
+    <div class="sec-b" id="chem-view"></div>
+  </div>
+  <div class="sec admin-sec" id="admin-chem" style="display:none;">
+    <div class="sec-h">🔒 Modifica prodotti chimici</div>
+    <div class="sec-b">
+      <div class="field" style="margin-bottom:12px;"><label>Un prodotto per riga (es. Grasso alimentare NSF H1)</label><textarea id="a-chem"></textarea></div>
+      <button class="btnsm primary" onclick="salvaChimici()">💾 Salva prodotti chimici</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">⚠️ Pittogrammi rischio e DPI richiesti</div>
+    <div class="sec-b">
+      <div style="margin-bottom:14px;"><div class="tlabel">DPI obbligatori</div><div class="picto-grid" id="picto-dpi-view"></div></div>
+      <div><div class="tlabel">Rischi presenti</div><div class="picto-grid" id="picto-risk-view"></div></div>
+    </div>
+  </div>
+  <div class="sec admin-sec" id="admin-picto" style="display:none;">
+    <div class="sec-h">🔒 Seleziona pittogrammi</div>
+    <div class="sec-b">
+      <div style="margin-bottom:14px;"><div class="tlabel">DPI</div><div class="picto-grid" id="picto-dpi-pick"></div></div>
+      <div style="margin-bottom:14px;"><div class="tlabel">Rischi</div><div class="picto-grid" id="picto-risk-pick"></div></div>
+      <button class="btnsm primary" onclick="salvaPittogrammi()">💾 Salva pittogrammi</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">⏰ Stato manutenzioni programmate</div>
+    <div class="sec-b"><div class="scad-grid" id="scad-grid"><div class="s-empty">⏳ Caricamento...</div></div></div>
+  </div>
+
+  <div class="sec admin-sec" id="admin-piano" style="display:none;">
+    <div class="sec-h">🔒 Modifica piano di manutenzione</div>
+    <div class="sec-b">
+      <div id="piano-list" style="margin-bottom:16px;"></div>
+      <div class="tlabel">+ Aggiungi voce al piano</div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div class="field"><label>Tipo</label><input type="text" id="p-tipo" placeholder="es. Semestrale"></div>
+        <div class="field"><label>Frequenza (mesi)</label><input type="number" id="p-mesi" placeholder="es. 6"></div>
+        <div class="field"><label>Descrizione</label><input type="text" id="p-desc" placeholder="Cosa va fatto"></div>
+      </div>
+      <button class="btnsm primary" onclick="aggiungiPiano()">+ Aggiungi al piano</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">➕ Registra nuovo intervento</div>
+    <div class="sec-b">
+      <div class="tlabel">Cosa hai fatto</div>
+      <div class="field" style="margin-bottom:14px;">
+        <select id="int-piano" onchange="setPiano(this.value)">
+          <option value="">— Seleziona una voce dal piano di manutenzione —</option>
+        </select>
+      </div>
+      <div class="g2" style="margin-bottom:14px">
+        <div class="field"><label>Data intervento</label><input type="date" id="int-data"></div>
+        <div class="field"><label>Nome manutentore</label><input type="text" id="int-manut" placeholder="Nome e cognome" oninput="aggInfo()"></div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Descrizione intervento</label>
+        <textarea id="int-desc" placeholder="Descrivere l'intervento eseguito..." oninput="aggInfo()"></textarea>
+      </div>
+      <div class="tlabel">⚕️ Idoneità igienica dopo l'intervento</div>
+      <div class="igwrap">
+        <button class="igbtn" id="ig-ok" onclick="setIg('OK')">✅ OK — Idoneità igienica ripristinata</button>
+        <button class="igbtn" id="ig-nok" onclick="setIg('NOK')">❌ NOK — Idoneità igienica NON ripristinata</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">📋 Storico interventi</div>
+    <div class="sec-b" id="storico"><div class="s-empty">⏳ Caricamento storico...</div></div>
+  </div>
+</div>
+
+<div class="main" id="notfound-content" style="display:none;">
+  <div class="sec"><div class="sec-b" style="text-align:center;padding:50px 20px;">
+    <div style="font-size:2.4rem;margin-bottom:10px;">🔍</div>
+    <div style="font-weight:600;margin-bottom:8px;">Macchina non trovata</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-bottom:18px;" id="notfound-code"></div>
+    <div id="notfound-admin" style="display:none;">
+      <div class="tlabel">Crea la scheda per questa macchina</div>
+      <div class="g2" style="margin-bottom:10px;max-width:420px;margin-left:auto;margin-right:auto;">
+        <div class="field"><label>Codice</label><input type="text" id="nf-codice"></div>
+        <div class="field"><label>Nome macchina</label><input type="text" id="nf-nome"></div>
+      </div>
+      <button class="btnsm primary" onclick="creaMacchina()">+ Crea scheda macchina</button>
+    </div>
+  </div></div>
+</div>
+
+<div class="subbar" id="subbar" style="display:none;">
+  <div class="subinfo" id="subinfo">Seleziona tipo e compila i campi</div>
+  <button class="subbtn" id="btn-salva" onclick="salvaIntervento()">💾 Salva intervento</button>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modal-box">
+    <div class="modal-icon" id="m-icon"></div>
+    <div class="modal-title" id="m-title"></div>
+    <div class="modal-msg" id="m-msg"></div>
+    <div id="m-extra"></div>
+    <button class="modal-close" onclick="closeModal()">OK</button>
+  </div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLIHbVqB9xQ5BS9lSlxAq3sj7ElzKcRf8y-r4wCU-0ZCrCHuaJVEKSnLtsMxkg_EUmEg/exec";
+var ADMIN_PWD = "QSAmanutenzione";
+var ADMIN_KEY = "chiarli_manut_admin";
+
+var PITTO_DPI = {
+  M004:{f:"pittogrammi/M004.svg",l:"Protezione occhi"},
+  M009:{f:"pittogrammi/M009.svg",l:"Guanti di protezione"},
+  M010:{f:"pittogrammi/M010.svg",l:"Indumenti protettivi"},
+  M013:{f:"pittogrammi/M013.svg",l:"Visiera di protezione"},
+  M014:{f:"pittogrammi/M014.svg",l:"Casco di protezione"},
+  M015:{f:"pittogrammi/M015.svg",l:"Alta visibilità"},
+  M016:{f:"pittogrammi/M016.svg",l:"Mascherina"},
+  M017:{f:"pittogrammi/M017.svg",l:"Protezione respiratoria"},
+  M018:{f:"pittogrammi/M018.svg",l:"Imbracatura sicurezza"},
+  M019:{f:"pittogrammi/M019.svg",l:"Maschera saldatura"},
+  M026:{f:"pittogrammi/M026.svg",l:"Grembiule protettivo"},
+  M027:{f:"pittogrammi/M027.svg",l:"Controllare la protezione"},
+  M028:{f:"pittogrammi/M028.svg",l:"Bloccare con lucchetto"},
+  M031:{f:"pittogrammi/M031.svg",l:"Protezione sega regolabile"},
+  M032:{f:"pittogrammi/M032.svg",l:"Calzature antistatiche"},
+  M047:{f:"pittogrammi/M047.svg",l:"Autorespiratore"},
+  M048:{f:"pittogrammi/M048.svg",l:"Rilevatore di gas"},
+  M068:{f:"pittogrammi/M068.svg",l:"Isolare prima di manutenzione"},
+  M069:{f:"pittogrammi/M069.svg",l:"Scollegare prima di manutenzione"}
+};
+var PITTO_RISK = {
+  W002:{f:"pittogrammi/W002.png",l:"Materiale esplosivo"},
+  W006:{f:"pittogrammi/W006.png",l:"Campo magnetico"},
+  W007:{f:"pittogrammi/W007.png",l:"Ostacoli a terra"},
+  W008:{f:"pittogrammi/W008.png",l:"Rischio di caduta"},
+  W009:{f:"pittogrammi/W009.png",l:"Rischio biologico"},
+  W012:{f:"pittogrammi/W012.svg",l:"Rischio elettrico"},
+  W014:{f:"pittogrammi/W014.png",l:"Carrelli elevatori"},
+  W015:{f:"pittogrammi/W015.png",l:"Carichi sospesi"},
+  W016:{f:"pittogrammi/W016.png",l:"Materiale tossico"},
+  W017:{f:"pittogrammi/W017.png",l:"Superficie calda"},
+  W018:{f:"pittogrammi/W018.png",l:"Avviamento automatico"},
+  W019:{f:"pittogrammi/W019.png",l:"Organi in movimento"},
+  W021:{f:"pittogrammi/W021.png",l:"Materiale infiammabile"},
+  W023:{f:"pittogrammi/W023.png",l:"Sostanza corrosiva"},
+  W024:{f:"pittogrammi/W024.png",l:"Schiacciamento mani"},
+  W028:{f:"pittogrammi/W028.png",l:"Sostanza comburente"},
+  W029:{f:"pittogrammi/W029.png",l:"Bombole di gas"},
+  W032:{f:"pittogrammi/W032.png",l:"Movimento rapido pezzo"},
+  W035:{f:"pittogrammi/W035.png",l:"Caduta oggetti dall'alto"},
+  W038:{f:"pittogrammi/W038.png",l:"Rumori improvvisi forti"},
+  W071:{f:"pittogrammi/W071.png",l:"Rischio elettrico persona"},
+  W087:{f:"pittogrammi/W087.png",l:"Rumore elevato"},
+  W089:{f:"pittogrammi/W089.png",l:"Organi meccanici in movimento"}
+};
+
+var MAC = new URLSearchParams(location.search).get('m');
+var macchina = null, piano = [], storico = [], tipo = "", ig = "";
+var isAdmin = false;
+
+/* ---- JSONP / POST, stesso pattern del Portale QSE ---- */
+function jsonp(params) {
+  return new Promise(function (resolve, reject) {
+    var cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+    var qs = Object.keys(params).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+    var script = document.createElement('script');
+    var done = false;
+    window[cbName] = function (data) { done = true; delete window[cbName]; script.remove(); resolve(data); };
+    script.src = APPS_SCRIPT_URL + '?' + qs + '&callback=' + cbName;
+    script.onerror = function () { if (!done) { reject(new Error('Richiesta non riuscita')); delete window[cbName]; script.remove(); } };
+    document.body.appendChild(script);
+    setTimeout(function () { if (!done) { reject(new Error('Timeout backend')); delete window[cbName]; script.remove(); } }, 20000);
+  });
+}
+function post(action, sheet, data) {
+  return fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: action, sheet: sheet, data: data })
+  }).then(function (r) { return r.json(); });
+}
+function readSheet(name) { return jsonp({ action: 'read', sheet: name }).then(function (j) { return j.rows || []; }); }
+
+/* ---- init ---- */
+window.onload = function () {
+  setInterval(function () {
+    var n = new Date();
+    document.getElementById("live-clock").textContent = String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0");
+  }, 1000);
+  isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
+  updateAdminUI();
+  if (!MAC) { window.location.href = "index.html"; return; }
+  document.getElementById("int-data").valueAsDate = new Date();
+  caricaTutto();
+};
+
+function caricaTutto() {
+  Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')])
+    .then(function (res) {
+      var macchineAll = res[0], pianoAll = res[1], storicoAll = res[2];
+      macchina = macchineAll.filter(function (r) { return r.Codice === MAC; })[0] || null;
+      piano = pianoAll.filter(function (r) { return r['Codice Macchina'] === MAC; });
+      storico = storicoAll.filter(function (r) { return r['Codice Macchina'] === MAC; })
+        .sort(function (a, b) { return new Date(b.Data) - new Date(a.Data); });
+
+      if (!macchina) { renderNotFound(); return; }
+      document.getElementById("main-content").style.display = "block";
+      renderHeader();
+      renderMcard();
+      renderManualeLink();
+      renderChimici();
+      renderPittogrammi();
+      renderAdminAnagrafica();
+      renderAdminChem();
+      renderAdminPicto();
+      renderTipoBtns();
+      renderScad();
+      renderPianoAdmin();
+      renderStorico();
+    })
+    .catch(function (err) {
+      modal("❌", "Errore di caricamento", "Impossibile contattare il backend: " + err.message);
+    });
+}
+
+function renderNotFound() {
+  document.getElementById("notfound-content").style.display = "block";
+  document.getElementById("notfound-code").textContent = "Nessuna scheda trovata per il codice \"" + MAC + "\".";
+  document.getElementById("nf-codice").value = MAC;
+  document.getElementById("h-title").textContent = "Non trovata";
+  document.getElementById("h-badge").textContent = MAC;
+  if (isAdmin) document.getElementById("notfound-admin").style.display = "block";
+}
+function creaMacchina() {
+  var cod = document.getElementById("nf-codice").value.trim();
+  var nome = document.getElementById("nf-nome").value.trim();
+  if (!cod || !nome) { modal("⚠️", "Campi mancanti", "Inserisci codice e nome macchina."); return; }
+  post('write', 'Macchine', { Codice: cod, Nome: nome }).then(function () {
+    window.location.href = "scheda.html?m=" + encodeURIComponent(cod);
+  });
+}
+
+function renderHeader() {
+  document.getElementById("h-badge").textContent = macchina.Codice;
+  document.getElementById("h-title").textContent = macchina.Codice + " — " + macchina.Nome;
+  var sub = [macchina.Marca, macchina.Modello, macchina.Matricola ? ("Matricola " + macchina.Matricola) : "", macchina.Linea ? ("Linea " + macchina.Linea) : ""].filter(Boolean).join(" — ");
+  document.getElementById("h-sub").textContent = sub;
+  document.title = "Scheda Manutenzione - " + macchina.Nome;
+}
+
+function renderMcard() {
+  var fields = [["Tipo", macchina.Nome], ["Marca", macchina.Marca], ["Modello", macchina.Modello], ["Matricola", macchina.Matricola], ["Anno", macchina.Anno], ["N Interno", macchina["N Interno"]], ["Linea", macchina.Linea], ["CE", macchina.CE]];
+  document.getElementById("mcard").innerHTML = fields.map(function (f) {
+    return "<div><div class='mf-l'>" + f[0] + "</div><div class='mf-v'>" + (f[1] || "—") + "</div></div>";
+  }).join("");
+}
+function renderManualeLink() {
+  var el = document.getElementById("manuale-link");
+  el.innerHTML = macchina["Link Manuale"] ? "<a class='btnsm' target='_blank' href='" + esc(macchina["Link Manuale"]) + "'>📄 Apri manuale macchina</a>" : "";
+}
+
+function renderChimici() {
+  var raw = (macchina["Prodotti Chimici"] || "").trim();
+  var el = document.getElementById("chem-view");
+  if (!raw) { el.innerHTML = "<div class='s-empty'>Nessun prodotto chimico registrato.</div>"; return; }
+  var items = raw.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+  el.innerHTML = "<div class='chem-list'>" + items.map(function (i) { return "<div class='chem-item'>🧪 " + esc(i) + "</div>"; }).join("") + "</div>";
+}
+
+function pittoGrid(codes, lib) {
+  var arr = (codes || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+  if (!arr.length) return "<div class='s-empty' style='padding:10px 0;'>Nessuno</div>";
+  return arr.filter(function (c) { return lib[c]; }).map(function (c) {
+    return "<div class='picto'><img src='" + lib[c].f + "'><div>" + lib[c].l + "</div></div>";
+  }).join("");
+}
+function renderPittogrammi() {
+  document.getElementById("picto-dpi-view").innerHTML = pittoGrid(macchina["Pittogrammi DPI"], PITTO_DPI);
+  document.getElementById("picto-risk-view").innerHTML = pittoGrid(macchina["Pittogrammi Rischio"], PITTO_RISK);
+}
+
+/* ---- Admin ---- */
+function toggleAdmin() {
+  if (isAdmin) { isAdmin = false; sessionStorage.removeItem(ADMIN_KEY); updateAdminUI(); return; }
+  var pwd = prompt("Password amministratore:");
+  if (pwd === null) return;
+  if (pwd === ADMIN_PWD) { isAdmin = true; sessionStorage.setItem(ADMIN_KEY, "1"); updateAdminUI(); }
+  else modal("❌", "Password errata", "Riprova.");
+}
+function updateAdminUI() {
+  var btn = document.getElementById("admin-toggle");
+  btn.className = "adminbtn" + (isAdmin ? " on" : "");
+  btn.textContent = isAdmin ? "🔓 Amministratore attivo" : "🔒 Amministratore";
+  ["admin-anagrafica", "admin-chem", "admin-picto", "admin-piano"].forEach(function (id) {
+    document.getElementById(id).style.display = isAdmin ? "block" : "none";
+  });
+  var nfa = document.getElementById("notfound-admin");
+  if (nfa) nfa.style.display = (isAdmin && !macchina) ? "block" : "none";
+}
+
+function renderAdminAnagrafica() {
+  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "N Interno", "Linea", "CE"];
+  document.getElementById("admin-fields").innerHTML = fields.map(function (f) {
+    return "<div class='field'><label>" + f + "</label><input type='text' id='a-" + f.replace(/\s/g, '') + "' value=\"" + esc(macchina[f] || "") + "\"></div>";
+  }).join("");
+  document.getElementById("a-link").value = macchina["Link Manuale"] || "";
+}
+function salvaAnagrafica() {
+  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "N Interno", "Linea", "CE"];
+  var data = { ID: macchina.ID };
+  fields.forEach(function (f) { data[f] = document.getElementById("a-" + f.replace(/\s/g, '')).value; });
+  data["Link Manuale"] = document.getElementById("a-link").value;
+  post('update', 'Macchine', data).then(function () { modal("✅", "Salvato", "Dati macchina aggiornati."); caricaTutto(); });
+}
+
+function renderAdminChem() {
+  document.getElementById("a-chem").value = macchina["Prodotti Chimici"] || "";
+}
+function salvaChimici() {
+  post('update', 'Macchine', { ID: macchina.ID, "Prodotti Chimici": document.getElementById("a-chem").value })
+    .then(function () { modal("✅", "Salvato", "Prodotti chimici aggiornati."); caricaTutto(); });
+}
+
+function renderAdminPicto() {
+  var selDpi = (macchina["Pittogrammi DPI"] || "").split(",").map(function (s) { return s.trim(); });
+  var selRisk = (macchina["Pittogrammi Rischio"] || "").split(",").map(function (s) { return s.trim(); });
+  document.getElementById("picto-dpi-pick").innerHTML = pickGrid(PITTO_DPI, selDpi, "dpi");
+  document.getElementById("picto-risk-pick").innerHTML = pickGrid(PITTO_RISK, selRisk, "risk");
+}
+function pickGrid(lib, sel, group) {
+  return Object.keys(lib).map(function (c) {
+    var on = sel.indexOf(c) !== -1;
+    return "<div class='picto-pick" + (on ? " sel" : "") + "' data-group='" + group + "' data-code='" + c + "' onclick='togglePicto(this)'>" +
+      "<div class='picto'><img src='" + lib[c].f + "'><div>" + lib[c].l + "</div></div></div>";
+  }).join("");
+}
+function togglePicto(el) { el.classList.toggle("sel"); }
+function salvaPittogrammi() {
+  var dpi = Array.from(document.querySelectorAll("[data-group=dpi].sel")).map(function (e) { return e.dataset.code; }).join(", ");
+  var risk = Array.from(document.querySelectorAll("[data-group=risk].sel")).map(function (e) { return e.dataset.code; }).join(", ");
+  post('update', 'Macchine', { ID: macchina.ID, "Pittogrammi DPI": dpi, "Pittogrammi Rischio": risk })
+    .then(function () { modal("✅", "Salvato", "Pittogrammi aggiornati."); caricaTutto(); });
+}
+
+function renderPianoAdmin() {
+  var el = document.getElementById("piano-list");
+  if (!piano.length) { el.innerHTML = "<div class='s-empty'>Nessuna voce nel piano.</div>"; return; }
+  el.innerHTML = piano.map(function (p) {
+    return "<div class='plan-row'><div class='pinfo'><b>" + esc(p.Tipo) + "</b> — ogni " + esc(p["Frequenza Mesi"]) + " mesi<br><span style='color:var(--muted);font-size:.8rem'>" + esc(p.Descrizione) + "</span></div>" +
+      "<button class='btnsm danger' onclick=\"eliminaPiano('" + p.ID + "')\">🗑️ Elimina</button></div>";
+  }).join("");
+}
+function aggiungiPiano() {
+  var t = document.getElementById("p-tipo").value.trim();
+  var m = document.getElementById("p-mesi").value.trim();
+  var d = document.getElementById("p-desc").value.trim();
+  if (!t || !m || !d) { modal("⚠️", "Campi mancanti", "Compila tipo, frequenza e descrizione."); return; }
+  post('write', 'Piano Manutenzione', { "Codice Macchina": MAC, Tipo: t, "Frequenza Mesi": m, Descrizione: d })
+    .then(function () {
+      document.getElementById("p-tipo").value = ""; document.getElementById("p-mesi").value = ""; document.getElementById("p-desc").value = "";
+      caricaTutto();
+    });
+}
+function eliminaPiano(id) {
+  if (!confirm("Eliminare questa voce dal piano di manutenzione?")) return;
+  post('delete', 'Piano Manutenzione', { ID: id }).then(function () { caricaTutto(); });
+}
+
+/* ---- Registra intervento ---- */
+var pianoIdSelezionato = "";
+function renderTipoBtns() {
+  var sel = document.getElementById("int-piano");
+  var opts = "<option value=\"\">— Seleziona una voce dal piano di manutenzione —</option>";
+  opts += piano.map(function (p) {
+    return "<option value=\"" + esc(p.ID) + "\">" + esc(p.Tipo) + " — " + esc(p.Descrizione).slice(0, 90) + "</option>";
+  }).join("");
+  opts += "<option value=\"STR\">🔴 Straordinaria (intervento non pianificato)</option>";
+  sel.innerHTML = opts;
+  pianoIdSelezionato = "";
+  tipo = "";
+}
+function setPiano(val) {
+  pianoIdSelezionato = val;
+  if (val === "STR") { tipo = "Straordinaria"; }
+  else if (val) {
+    var p = piano.filter(function (x) { return x.ID === val; })[0];
+    tipo = p ? p.Tipo : "";
+  } else { tipo = ""; }
+  aggInfo();
+}
+function setIg(v) {
+  ig = v;
+  document.getElementById("ig-ok").className = "igbtn" + (v === "OK" ? " ok" : "");
+  document.getElementById("ig-nok").className = "igbtn" + (v === "NOK" ? " nok" : "");
+  aggInfo();
+}
+function aggInfo() {
+  var ok = tipo && ig && document.getElementById("int-manut").value.trim() && document.getElementById("int-desc").value.trim();
+  document.getElementById("subbar").style.display = "flex";
+  document.getElementById("subinfo").textContent = ok ? "Pronto — " + tipo + " | Igienica: " + ig : "Compila tutti i campi per salvare";
+}
+function salvaIntervento() {
+  var mn = document.getElementById("int-manut").value.trim();
+  var ds = document.getElementById("int-desc").value.trim();
+  var dt = document.getElementById("int-data").value;
+  if (!tipo) { modal("⚠️", "Tipo mancante", "Seleziona il tipo di intervento."); return; }
+  if (!ig) { modal("⚠️", "Campo mancante", "Indica l'idoneità igienica."); return; }
+  if (!mn) { modal("⚠️", "Campo mancante", "Inserisci il nome del manutentore."); return; }
+  if (!ds) { modal("⚠️", "Campo mancante", "Inserisci la descrizione."); return; }
+  var btn = document.getElementById("btn-salva");
+  btn.disabled = true; btn.textContent = "⏳ Salvataggio...";
+  post('write', 'Interventi Manutenzione', { "Codice Macchina": MAC, Data: dt, Tipo: tipo, Manutentore: mn, Descrizione: ds, "Idoneita Igienica": ig, "Piano ID": pianoIdSelezionato === "STR" ? "" : pianoIdSelezionato })
+    .then(function (j) {
+      btn.disabled = false; btn.textContent = "💾 Salva intervento";
+      tipo = ""; ig = ""; pianoIdSelezionato = "";
+      document.getElementById("int-piano").value = "";
+      document.getElementById("ig-ok").className = "igbtn";
+      document.getElementById("ig-nok").className = "igbtn";
+      document.getElementById("int-manut").value = "";
+      document.getElementById("int-desc").value = "";
+      document.getElementById("int-data").valueAsDate = new Date();
+      modal("✅", "Intervento salvato!", "Salvato correttamente sul foglio manutenzioni.");
+      caricaTutto();
+    })
+    .catch(function () { btn.disabled = false; btn.textContent = "💾 Salva intervento"; modal("❌", "Errore di rete", "Verifica la connessione e riprova."); });
+}
+
+/* ---- Stato manutenzioni + storico ---- */
+function renderScad() {
+  var g = document.getElementById("scad-grid");
+  if (!piano.length) { g.innerHTML = "<div class='s-empty'>Nessun piano di manutenzione definito" + (isAdmin ? ". Usa la sezione amministratore qui sotto per aggiungerne uno." : ".") + "</div>"; return; }
+  g.innerHTML = piano.map(function (m) {
+    var ultimi = storico.filter(function (i) { return i["Piano ID"] === m.ID; })
+      .sort(function (a, b) { return new Date(b.Data) - new Date(a.Data); });
+    var ul = ultimi[0];
+    var badge, bc, di, cc = "mai";
+    var mesi = parseFloat(m["Frequenza Mesi"]) || 0;
+    if (!ul) { badge = "MAI ESEGUITA"; bc = "b-mai"; di = "Nessun intervento registrato"; }
+    else {
+      var du = new Date(ul.Data);
+      var sc = new Date(du); sc.setMonth(sc.getMonth() + mesi);
+      var dg = Math.round((sc - new Date()) / 86400000);
+      di = "Ultimo: " + du.toLocaleDateString("it-IT") + " — Scade: " + sc.toLocaleDateString("it-IT");
+      if (dg < 0) { badge = "SCADUTA (" + Math.abs(dg) + "gg)"; bc = "b-out"; cc = "scad-out"; }
+      else if (dg <= 30) { badge = "IN SCADENZA (" + dg + "gg)"; bc = "b-warn"; cc = "warn"; }
+      else { badge = "OK (" + dg + "gg)"; bc = "b-ok"; cc = "ok"; }
+    }
+    return "<div class='scad " + cc + "'><div class='scad-top'><span class='scad-freq'>Ogni " + mesi + " mesi</span><span class='badge " + bc + "'>" + badge + "</span></div>" +
+      "<div class='scad-desc'><b>" + esc(m.Tipo) + "</b> — " + esc(m.Descrizione) + "</div><div class='scad-dt'>" + di + "</div></div>";
+  }).join("");
+}
+
+function renderStorico() {
+  var c = document.getElementById("storico");
+  if (!storico.length) { c.innerHTML = "<div class='s-empty'>Nessun intervento registrato.</div>"; return; }
+  c.innerHTML = storico.map(function (i) {
+    return "<div class='icard " + (i["Idoneita Igienica"] === "NOK" ? "nok" : "") + "'>" +
+      "<div class='icard-top'>" +
+      "<span class='itipo" + (i.Tipo === "Straordinaria" ? " str" : "") + "'>" + esc(i.Tipo) + "</span>" +
+      "<span class='idt'>📅 " + esc(formatData(i.Data)) + "</span>" +
+      "<span class='imn'>👤 " + esc(i.Manutentore) + "</span>" +
+      "</div>" +
+      "<div class='idesc'>" + esc(i.Descrizione) + "</div>" +
+      "<span class='iiig " + (i["Idoneita Igienica"] === "OK" ? "iig-ok" : "iig-nok") + "'>" + (i["Idoneita Igienica"] === "OK" ? "✅ Idoneità igienica: OK" : "❌ Idoneità igienica: NOK") + "</span>" +
+      "</div>";
+  }).join("");
+}
+
+/* ---- utils ---- */
+function formatData(d) { if (!d) return "—"; var dt = new Date(d); return isNaN(dt) ? String(d) : dt.toLocaleDateString("it-IT"); }
+function esc(s) { return (s === undefined || s === null) ? "" : String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function modal(icon, title, msg) {
+  document.getElementById("m-icon").textContent = icon;
+  document.getElementById("m-title").textContent = title;
+  document.getElementById("m-msg").textContent = msg;
+  document.getElementById("m-extra").innerHTML = "";
+  document.getElementById("modal").classList.add("open");
+}
+function closeModal() { document.getElementById("modal").classList.remove("open"); }
+</script>
+</body>
+</html>

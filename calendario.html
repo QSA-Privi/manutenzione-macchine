@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario Manutenzioni</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#f5a623;--danger:#dc3545;--success:#28a745;--border:#dee2e6;--muted:#6c757d;--surface:#f8f9fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
+.app-header{background:#fff;border-bottom:3px solid var(--accent);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-wrap:wrap;gap:10px;}
+.htitle{font-size:1.1rem;font-weight:600;}
+.hlinks a{color:var(--muted);text-decoration:none;margin-left:10px;font-size:.8rem;}
+.hlinks a:hover{color:var(--accent);}
+.main{max-width:1100px;margin:0 auto;padding:22px 16px;}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+.nav{display:flex;align-items:center;gap:10px;}
+.nav button{background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px 14px;font-size:.85rem;cursor:pointer;font-weight:600;}
+.nav button:hover{border-color:var(--accent);}
+.nav .curr{font-size:1.05rem;font-weight:600;min-width:160px;text-align:center;font-family:'IBM Plex Mono',monospace;}
+.viewtoggle{display:flex;gap:6px;}
+.viewtoggle button{background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px 16px;font-size:.82rem;cursor:pointer;font-weight:600;color:var(--muted);}
+.viewtoggle button.sel{background:var(--accent);color:#000;border-color:var(--accent);}
+.printbtn{background:#212529;color:#fff;border:none;border-radius:4px;padding:8px 16px;font-size:.82rem;cursor:pointer;font-weight:600;}
+.s-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:32px 0;}
+
+.mai-box{background:#fff8f8;border:1px solid var(--danger);border-radius:6px;padding:14px 18px;margin-bottom:18px;}
+.mai-box .mt{font-weight:600;color:var(--danger);margin-bottom:8px;font-size:.88rem;}
+.mai-list{display:flex;flex-wrap:wrap;gap:8px;}
+.mai-chip{background:#fff;border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:5px 10px;font-size:.76rem;font-family:'IBM Plex Mono',monospace;text-decoration:none;}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cal-dow{background:var(--surface);text-align:center;font-size:.7rem;font-weight:600;color:var(--muted);padding:8px 4px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.cal-cell{min-height:100px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px;position:relative;}
+.cal-cell:nth-child(7n){border-right:none;}
+.cal-cell.out{background:#fafafa;color:#ccc;}
+.cal-daynum{font-size:.75rem;font-weight:600;color:var(--muted);margin-bottom:4px;}
+.cal-cell.today .cal-daynum{color:var(--accent);}
+.cal-cell.today{background:#fffbf0;}
+.cal-item{font-size:.66rem;background:#fff3cd;color:#856404;border-radius:3px;padding:2px 5px;margin-bottom:3px;display:block;text-decoration:none;font-family:'IBM Plex Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cal-item.out2{background:#f8d7da;color:#721c24;}
+
+.year-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.year-table th,.year-table td{border:1px solid var(--border);padding:8px 6px;text-align:center;}
+.year-table th{background:var(--surface);font-size:.68rem;text-transform:uppercase;color:var(--muted);}
+.year-table td.rowlabel{text-align:left;font-weight:600;white-space:nowrap;}
+.year-mark{display:inline-block;width:16px;height:16px;border-radius:3px;background:var(--accent);}
+.year-mark.past{background:#adb5bd;}
+
+@media print{
+  .app-header,.hlinks,.nav button,.viewtoggle,.printbtn{display:none!important;}
+  body{padding:0;}
+  .main{max-width:100%;padding:0;}
+  @page{size:landscape;margin:10mm;}
+}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="htitle">📅 Calendario Manutenzioni</div>
+  <div class="hlinks"><a href="index.html">Tutte le macchine</a></div>
+</header>
+<div class="main">
+  <div class="toolbar">
+    <div class="nav">
+      <button onclick="prev()">◀</button>
+      <div class="curr" id="curr-label"></div>
+      <button onclick="next()">▶</button>
+      <button onclick="oggi()">Oggi</button>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <div class="viewtoggle">
+        <button id="vt-mese" class="sel" onclick="setView('mese')">Mese</button>
+        <button id="vt-anno" onclick="setView('anno')">Anno</button>
+      </div>
+      <button class="printbtn" onclick="window.print()">🖨️ Stampa</button>
+    </div>
+  </div>
+
+  <div class="mai-box" id="mai-box" style="display:none;">
+    <div class="mt">⚠️ Manutenzioni mai eseguite (non calcolabile una scadenza)</div>
+    <div class="mai-list" id="mai-list"></div>
+  </div>
+
+  <div id="view-mese"><div class="s-empty">⏳ Caricamento...</div></div>
+  <div id="view-anno" style="display:none;"></div>
+</div>
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLIHbVqB9xQ5BS9lSlxAq3sj7ElzKcRf8y-r4wCU-0ZCrCHuaJVEKSnLtsMxkg_EUmEg/exec";
+var MESI_IT = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+var DOW_IT = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+var macchine = [], piano = [], storico = [];
+var curDate = new Date();
+var view = "mese";
+var eventi = []; // {data:Date, codice, nome, tipo, stato}
+var mai = []; // {codice, nome, tipo}
+
+function jsonp(params) {
+  return new Promise(function (resolve, reject) {
+    var cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+    var qs = Object.keys(params).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+    var script = document.createElement('script');
+    var done = false;
+    window[cbName] = function (data) { done = true; delete window[cbName]; script.remove(); resolve(data); };
+    script.src = APPS_SCRIPT_URL + '?' + qs + '&callback=' + cbName;
+    script.onerror = function () { if (!done) { reject(new Error('errore')); delete window[cbName]; script.remove(); } };
+    document.body.appendChild(script);
+    setTimeout(function () { if (!done) { reject(new Error('timeout')); delete window[cbName]; script.remove(); } }, 20000);
+  });
+}
+function readSheet(name) { return jsonp({ action: 'read', sheet: name }).then(function (j) { return j.rows || []; }); }
+function esc(s) { return (s === undefined || s === null) ? "" : String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')]).then(function (res) {
+  macchine = res[0]; piano = res[1]; storico = res[2];
+  calcolaEventi();
+  render();
+}).catch(function (e) {
+  document.getElementById("view-mese").innerHTML = "<div class='s-empty'>Impossibile contattare il backend: " + esc(e.message) + "</div>";
+});
+
+function calcolaEventi() {
+  eventi = []; mai = [];
+  var mapMacchine = {};
+  macchine.forEach(function (m) { mapMacchine[m.Codice] = m; });
+
+  piano.forEach(function (p) {
+    var cod = p['Codice Macchina'];
+    var mac = mapMacchine[cod];
+    var nome = mac ? mac.Nome : cod;
+    var interventi = storico.filter(function (i) { return i['Piano ID'] === p.ID; })
+      .sort(function (a, b) { return new Date(b.Data) - new Date(a.Data); });
+    var mesi = parseFloat(p['Frequenza Mesi']) || 0;
+    if (!interventi.length) {
+      mai.push({ codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione });
+      return;
+    }
+    var ultimo = new Date(interventi[0].Data);
+    var scade = new Date(ultimo);
+    scade.setMonth(scade.getMonth() + mesi);
+    var stato = scade < new Date() ? "scaduta" : "ok";
+    eventi.push({ data: scade, codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione, pianoId: p.ID, stato: stato });
+  });
+
+  var mb = document.getElementById("mai-box"), ml = document.getElementById("mai-list");
+  if (mai.length) {
+    mb.style.display = "block";
+    ml.innerHTML = mai.map(function (m) {
+      return "<a class='mai-chip' href='scheda.html?m=" + encodeURIComponent(m.codice) + "' title='" + esc(m.descrizione) + "'>" + esc(m.codice) + " — " + esc(m.tipo) + " (" + esc(m.descrizione).slice(0, 30) + "…)</a>";
+    }).join("");
+  } else { mb.style.display = "none"; }
+}
+
+function setView(v) {
+  view = v;
+  document.getElementById("vt-mese").className = v === "mese" ? "sel" : "";
+  document.getElementById("vt-anno").className = v === "anno" ? "sel" : "";
+  document.getElementById("view-mese").style.display = v === "mese" ? "block" : "none";
+  document.getElementById("view-anno").style.display = v === "anno" ? "block" : "none";
+  render();
+}
+function prev() { if (view === "mese") curDate.setMonth(curDate.getMonth() - 1); else curDate.setFullYear(curDate.getFullYear() - 1); render(); }
+function next() { if (view === "mese") curDate.setMonth(curDate.getMonth() + 1); else curDate.setFullYear(curDate.getFullYear() + 1); render(); }
+function oggi() { curDate = new Date(); render(); }
+
+function render() {
+  if (view === "mese") { renderMese(); document.getElementById("curr-label").textContent = MESI_IT[curDate.getMonth()] + " " + curDate.getFullYear(); }
+  else { renderAnno(); document.getElementById("curr-label").textContent = curDate.getFullYear(); }
+}
+
+function renderMese() {
+  var y = curDate.getFullYear(), m = curDate.getMonth();
+  var primo = new Date(y, m, 1);
+  var startOffset = (primo.getDay() + 6) % 7; // lunedì=0
+  var giorniMese = new Date(y, m + 1, 0).getDate();
+  var oggiStr = new Date().toDateString();
+
+  var html = "<div class='cal-grid'>";
+  DOW_IT.forEach(function (d) { html += "<div class='cal-dow'>" + d + "</div>"; });
+
+  var totalCells = Math.ceil((startOffset + giorniMese) / 7) * 7;
+  for (var i = 0; i < totalCells; i++) {
+    var dayNum = i - startOffset + 1;
+    var inMonth = dayNum >= 1 && dayNum <= giorniMese;
+    var cellDate = new Date(y, m, dayNum);
+    var isToday = inMonth && cellDate.toDateString() === oggiStr;
+    html += "<div class='cal-cell" + (inMonth ? "" : " out") + (isToday ? " today" : "") + "'>";
+    if (inMonth) {
+      html += "<div class='cal-daynum'>" + dayNum + "</div>";
+      var evs = eventi.filter(function (e) { return e.data.toDateString() === cellDate.toDateString(); });
+      evs.forEach(function (e) {
+        html += "<a class='cal-item" + (e.stato === "scaduta" ? " out2" : "") + "' href='scheda.html?m=" + encodeURIComponent(e.codice) + "' title='" + esc(e.codice + " - " + e.nome + " - " + e.tipo + ": " + e.descrizione) + "'>" + esc(e.codice) + " " + esc(e.tipo) + "</a>";
+      });
+    }
+    html += "</div>";
+  }
+  html += "</div>";
+  document.getElementById("view-mese").innerHTML = html;
+}
+
+function renderAnno() {
+  var y = curDate.getFullYear();
+  var righe = {};
+  eventi.forEach(function (e) {
+    if (e.data.getFullYear() !== y) return;
+    var key = e.pianoId;
+    if (!righe[key]) righe[key] = { codice: e.codice, nome: e.nome, tipo: e.tipo, descrizione: e.descrizione, mesi: {} };
+    righe[key].mesi[e.data.getMonth()] = e.stato;
+  });
+  var lista = Object.values(righe).sort(function (a, b) { return (a.codice + a.tipo).localeCompare(b.codice + b.tipo); });
+
+  if (!lista.length) { document.getElementById("view-anno").innerHTML = "<div class='s-empty'>Nessuna scadenza calcolabile per il " + y + ".</div>"; return; }
+
+  var html = "<table class='year-table'><thead><tr><th style='text-align:left;'>Macchina</th><th style='text-align:left;'>Intervento</th>";
+  MESI_IT.forEach(function (mn) { html += "<th>" + mn.slice(0, 3) + "</th>"; });
+  html += "</tr></thead><tbody>";
+  lista.forEach(function (r) {
+    html += "<tr><td class='rowlabel'><a href='scheda.html?m=" + encodeURIComponent(r.codice) + "'>" + esc(r.codice) + " — " + esc(r.nome) + "</a></td><td title='" + esc(r.descrizione) + "'>" + esc(r.tipo) + " — " + esc(r.descrizione).slice(0, 40) + "…</td>";
+    for (var mm = 0; mm < 12; mm++) {
+      html += "<td>" + (r.mesi[mm] ? "<span class='year-mark" + (r.mesi[mm] === "scaduta" ? " past" : "") + "'></span>" : "") + "</td>";
+    }
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  document.getElementById("view-anno").innerHTML = html;
+}
+</script>
+</body>
+</html>
