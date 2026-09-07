@@ -6,15 +6,21 @@
 <title>Calendario Manutenzioni</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--accent:#f5a623;--danger:#dc3545;--success:#28a745;--border:#dee2e6;--muted:#6c757d;--surface:#f8f9fa;}
+:root{--accent:#f5a623;--danger:#dc3545;--success:#28a745;--border:#dee2e6;--muted:#6c757d;--surface:#f8f9fa;--admin:#7c3aed;
+      --prog:#2563eb;--prog-bg:#e7f0ff;--prog-fg:#1e40af;
+      --imm:#f59e0b;--imm-bg:#fff4d6;--imm-fg:#7a5b00;
+      --scad:#dc3545;--scad-bg:#fde2e4;--scad-fg:#8a1c28;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 .app-header{background:#fff;border-bottom:3px solid var(--accent);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-wrap:wrap;gap:10px;}
 .htitle{font-size:1.1rem;font-weight:600;}
+.hright{display:flex;align-items:center;gap:14px;}
 .hlinks a{color:var(--muted);text-decoration:none;margin-left:10px;font-size:.8rem;}
 .hlinks a:hover{color:var(--accent);}
+.adminbtn{background:#fff;border:1px solid var(--admin);color:var(--admin);border-radius:4px;padding:6px 12px;font-size:.72rem;font-weight:600;cursor:pointer;}
+.adminbtn.on{background:var(--admin);color:#fff;}
 .main{max-width:1100px;margin:0 auto;padding:22px 16px;}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
 .nav{display:flex;align-items:center;gap:10px;}
 .nav button{background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px 14px;font-size:.85rem;cursor:pointer;font-weight:600;}
 .nav button:hover{border-color:var(--accent);}
@@ -22,79 +28,140 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 .viewtoggle{display:flex;gap:6px;}
 .viewtoggle button{background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px 16px;font-size:.82rem;cursor:pointer;font-weight:600;color:var(--muted);}
 .viewtoggle button.sel{background:var(--accent);color:#000;border-color:var(--accent);}
+.viewtoggle button.admin-only{border-color:var(--admin);color:var(--admin);}
+.viewtoggle button.admin-only.sel{background:var(--admin);color:#fff;}
 .printbtn{background:#212529;color:#fff;border:none;border-radius:4px;padding:8px 16px;font-size:.82rem;cursor:pointer;font-weight:600;}
 .s-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:32px 0;}
 
-.mai-box{background:#fff8f8;border:1px solid var(--danger);border-radius:6px;padding:14px 18px;margin-bottom:18px;}
-.mai-box .mt{font-weight:600;color:var(--danger);margin-bottom:8px;font-size:.88rem;}
-.mai-list{display:flex;flex-wrap:wrap;gap:8px;}
-.mai-chip{background:#fff;border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:5px 10px;font-size:.76rem;font-family:'IBM Plex Mono',monospace;text-decoration:none;}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.74rem;color:var(--muted);margin-bottom:16px;align-items:center;}
+.legend .k{display:inline-flex;align-items:center;gap:7px;}
+.legend .sw{width:14px;height:14px;border-radius:3px;display:inline-block;flex:none;}
+.sw-prog{background:var(--prog);}
+.sw-imm{background:var(--imm);}
+.sw-scad{background:var(--scad);}
 
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
 .cal-dow{background:var(--surface);text-align:center;font-size:.7rem;font-weight:600;color:var(--muted);padding:8px 4px;text-transform:uppercase;border-bottom:1px solid var(--border);}
-.cal-cell{min-height:100px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px;position:relative;}
+.cal-cell{min-height:96px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px;position:relative;display:flex;flex-direction:column;gap:4px;}
 .cal-cell:nth-child(7n){border-right:none;}
-.cal-cell.out{background:#fafafa;color:#ccc;}
-.cal-daynum{font-size:.75rem;font-weight:600;color:var(--muted);margin-bottom:4px;}
-.cal-cell.today .cal-daynum{color:var(--accent);}
-.cal-cell.today{background:#fffbf0;}
-.cal-item{font-size:.66rem;background:#fff3cd;color:#856404;border-radius:3px;padding:2px 5px;margin-bottom:3px;display:block;text-decoration:none;font-family:'IBM Plex Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.cal-item.out2{background:#f8d7da;color:#721c24;}
+.cal-cell.out{background:#fafafa;}
+.cal-cell.out .cal-daynum{color:#ccc;}
+.cal-cell.wknd{background:#fcfcfd;}
+.cal-daynum{font-size:.75rem;font-weight:600;color:var(--muted);}
+.cal-cell.today .cal-daynum{color:#fff;background:var(--accent);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;}
+.day-summary{margin-top:auto;display:flex;align-items:center;gap:6px;width:100%;border:none;border-radius:4px;padding:5px 7px;font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;background:var(--prog-bg);color:var(--prog-fg);}
+.day-summary .n{font-family:'IBM Plex Mono',monospace;font-size:.8rem;}
+.day-summary.has-imm{background:var(--imm-bg);color:var(--imm-fg);}
+.day-summary.has-scad{background:var(--scad-bg);color:var(--scad-fg);}
+.day-summary:hover{filter:brightness(.96);}
 
-.year-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.year-wrap{overflow-x:auto;}
+.year-table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:760px;}
 .year-table th,.year-table td{border:1px solid var(--border);padding:8px 6px;text-align:center;}
 .year-table th{background:var(--surface);font-size:.68rem;text-transform:uppercase;color:var(--muted);}
 .year-table td.rowlabel{text-align:left;font-weight:600;white-space:nowrap;}
-.year-mark{display:inline-block;width:16px;height:16px;border-radius:3px;background:var(--accent);}
-.year-mark.past{background:#adb5bd;}
+.year-table td.coldesc{text-align:left;color:var(--muted);}
+.year-cell{cursor:pointer;}
+.year-cell:hover{background:#fafafa;}
+.year-mark{display:inline-block;min-width:20px;height:18px;line-height:18px;border-radius:3px;font-size:.66rem;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#fff;padding:0 4px;}
+.year-mark.prog{background:var(--prog);}
+.year-mark.imm{background:var(--imm);}
+.year-mark.scad{background:var(--scad);}
+
+.mai-intro{font-size:.82rem;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.mai-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+.mai-card{border:1px solid var(--border);border-left:4px solid var(--muted);border-radius:6px;padding:12px 14px;}
+.mai-card .mc-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
+.mai-card .mc-cod{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.82rem;}
+.mai-card .mc-freq{font-size:.66rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+.mai-card .mc-tipo{font-size:.78rem;font-weight:600;margin-bottom:3px;}
+.mai-card .mc-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+.mai-card a.mc-link{font-size:.74rem;font-weight:600;color:var(--admin);text-decoration:none;}
+.mai-card a.mc-link:hover{text-decoration:underline;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:400;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:8px;max-width:520px;width:100%;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+.modal-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border);font-weight:600;}
+.modal-h button{background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--muted);line-height:1;}
+.modal-b{padding:12px 18px 18px;overflow-y:auto;}
+.ev-row{display:block;border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px;text-decoration:none;color:inherit;}
+.ev-row:hover{border-color:var(--accent);}
+.ev-row .ev-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.ev-cod{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.82rem;}
+.ev-nome{font-size:.82rem;color:var(--muted);flex:1;}
+.ev-badge{font-size:.64rem;font-weight:700;font-family:'IBM Plex Mono',monospace;padding:2px 7px;border-radius:3px;text-transform:uppercase;}
+.ev-badge.prog{background:var(--prog-bg);color:var(--prog-fg);}
+.ev-badge.imm{background:var(--imm-bg);color:var(--imm-fg);}
+.ev-badge.scad{background:var(--scad-bg);color:var(--scad-fg);}
+.ev-desc{font-size:.78rem;line-height:1.45;}
+.ev-open{font-size:.7rem;color:var(--admin);font-weight:600;margin-top:6px;}
 
 @media print{
-  .app-header,.hlinks,.nav button,.viewtoggle,.printbtn{display:none!important;}
-  body{padding:0;}
-  .main{max-width:100%;padding:0;}
+  .app-header,.hlinks,.adminbtn,.nav button,.viewtoggle,.printbtn{display:none!important;}
+  body{padding:0;} .main{max-width:100%;padding:0;}
   @page{size:landscape;margin:10mm;}
 }
 </style>
 </head>
 <body>
 <header class="app-header">
-  <div class="htitle">📅 Calendario Manutenzioni</div>
-  <div class="hlinks"><a href="index.html">Tutte le macchine</a></div>
+<div class="htitle">Calendario Manutenzioni</div>
+<div class="hright">
+<div class="hlinks"><a href="index.html">Tutte le macchine</a></div>
+<button class="adminbtn" id="admin-toggle" onclick="toggleAdmin()">Amministratore</button>
+</div>
 </header>
 <div class="main">
-  <div class="toolbar">
-    <div class="nav">
-      <button onclick="prev()">◀</button>
-      <div class="curr" id="curr-label"></div>
-      <button onclick="next()">▶</button>
-      <button onclick="oggi()">Oggi</button>
-    </div>
-    <div style="display:flex;gap:10px;">
-      <div class="viewtoggle">
-        <button id="vt-mese" class="sel" onclick="setView('mese')">Mese</button>
-        <button id="vt-anno" onclick="setView('anno')">Anno</button>
-      </div>
-      <button class="printbtn" onclick="window.print()">🖨️ Stampa</button>
-    </div>
-  </div>
-
-  <div class="mai-box" id="mai-box" style="display:none;">
-    <div class="mt">⚠️ Manutenzioni mai eseguite (non calcolabile una scadenza)</div>
-    <div class="mai-list" id="mai-list"></div>
-  </div>
-
-  <div id="view-mese"><div class="s-empty">⏳ Caricamento...</div></div>
-  <div id="view-anno" style="display:none;"></div>
+<div class="toolbar">
+<div class="nav">
+<button onclick="prev()" id="btn-prev">&#9664;</button>
+<div class="curr" id="curr-label"></div>
+<button onclick="next()" id="btn-next">&#9654;</button>
+<button onclick="oggi()">Oggi</button>
 </div>
+<div style="display:flex;gap:10px;">
+<div class="viewtoggle">
+<button id="vt-mese" class="sel" onclick="setView('mese')">Mese</button>
+<button id="vt-anno" onclick="setView('anno')">Anno</button>
+<button id="vt-mai" class="admin-only" style="display:none;" onclick="setView('mai')">Mai eseguite</button>
+</div>
+<button class="printbtn" onclick="window.print()">Stampa</button>
+</div>
+</div>
+
+<div class="legend" id="legend">
+<span class="k"><span class="sw sw-prog"></span> Programmata &mdash; scadenza futura</span>
+<span class="k"><span class="sw sw-imm"></span> In scadenza / da fare &mdash; fino a ~3 settimane di ritardo</span>
+<span class="k"><span class="sw sw-scad"></span> Scaduta &mdash; oltre 3 settimane di ritardo</span>
+<span class="k" id="legend-note" style="display:none;">Le scadenze di sab/dom sono anticipate al venerdi&#768;.</span>
+</div>
+
+<div id="view-mese"><div class="s-empty">Caricamento...</div></div>
+<div id="view-anno" style="display:none;"></div>
+<div id="view-mai" style="display:none;"></div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+<div class="modal-h"><span id="m-title"></span><button onclick="closeModal()" aria-label="Chiudi">&#10005;</button></div>
+<div class="modal-b" id="m-body"></div>
+</div>
+</div>
+
 <script>
 var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLIHbVqB9xQ5BS9lSlxAq3sj7ElzKcRf8y-r4wCU-0ZCrCHuaJVEKSnLtsMxkg_EUmEg/exec";
+var ADMIN_PWD = "QSAmanutenzione";
+var ADMIN_KEY = "chiarli_manut_admin";
 var MESI_IT = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 var DOW_IT = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+var RITARDO_ROSSO_GG = 21; // giorni di ritardo oltre i quali la scadenza diventa rossa (prima e' arancione)
 var macchine = [], piano = [], storico = [];
 var curDate = new Date();
 var view = "mese";
-var eventi = []; // {data:Date, codice, nome, tipo, stato}
-var mai = []; // {codice, nome, tipo}
+var isAdmin = false;
+var eventi = [];   // {data:Date, codice, nome, tipo, descrizione, pianoId, stato}
+var mai = [];      // {codice, nome, tipo, descrizione, freq}
 
 function jsonp(params) {
   return new Promise(function (resolve, reject) {
@@ -110,7 +177,21 @@ function jsonp(params) {
   });
 }
 function readSheet(name) { return jsonp({ action: 'read', sheet: name }).then(function (j) { return j.rows || []; }); }
-function esc(s) { return (s === undefined || s === null) ? "" : String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function esc(s) { return (s === undefined || s === null) ? "" : String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function two(n){ return (n<10?"0":"")+n; }
+function iso(d){ return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate()); }
+
+/* regola generale: nessuna scadenza di sabato/domenica -> anticipa al venerdi */
+function spostaFeriale(d) {
+  var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  var g = x.getDay(); // 0=dom, 6=sab
+  if (g === 6) x.setDate(x.getDate() - 1);
+  else if (g === 0) x.setDate(x.getDate() - 2);
+  return x;
+}
+
+isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
+updateAdminUI();
 
 Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')]).then(function (res) {
   macchine = res[0]; piano = res[1]; storico = res[2];
@@ -133,46 +214,69 @@ function calcolaEventi() {
       .sort(function (a, b) { return new Date(b.Data) - new Date(a.Data); });
     var mesi = parseFloat(p['Frequenza Mesi']) || 0;
     if (!interventi.length) {
-      mai.push({ codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione });
+      mai.push({ codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione, freq: p['Frequenza Mesi'] });
       return;
     }
     var ultimo = new Date(interventi[0].Data);
     var scade = new Date(ultimo);
     scade.setMonth(scade.getMonth() + mesi);
-    var stato = scade < new Date() ? "scaduta" : "ok";
-    eventi.push({ data: scade, codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione, pianoId: p.ID, stato: stato });
+    scade = spostaFeriale(scade);
+    var oggi0 = new Date(); oggi0.setHours(0, 0, 0, 0);
+    var dg = Math.round((scade - oggi0) / 86400000); // giorni alla scadenza (negativo = in ritardo)
+    var stato = dg > 0 ? "programmata" : (dg >= -RITARDO_ROSSO_GG ? "imminente" : "scaduta");
+    eventi.push({ data: scade, codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione, pianoId: p.ID, stato: stato, dg: dg });
   });
+}
 
-  var mb = document.getElementById("mai-box"), ml = document.getElementById("mai-list");
-  if (mai.length) {
-    mb.style.display = "block";
-    ml.innerHTML = mai.map(function (m) {
-      return "<a class='mai-chip' href='scheda.html?m=" + encodeURIComponent(m.codice) + "' title='" + esc(m.descrizione) + "'>" + esc(m.codice) + " — " + esc(m.tipo) + " (" + esc(m.descrizione).slice(0, 30) + "…)</a>";
-    }).join("");
-  } else { mb.style.display = "none"; }
+/* ---- admin ---- */
+function toggleAdmin() {
+  if (isAdmin) { isAdmin = false; sessionStorage.removeItem(ADMIN_KEY); }
+  else {
+    var p = prompt("Password amministratore:");
+    if (p === null) return;
+    if (p === ADMIN_PWD) { isAdmin = true; sessionStorage.setItem(ADMIN_KEY, "1"); }
+    else { alert("Password errata"); return; }
+  }
+  updateAdminUI();
+  if (!isAdmin && view === "mai") view = "mese";
+  render();
+}
+function updateAdminUI() {
+  var b = document.getElementById("admin-toggle");
+  b.className = "adminbtn" + (isAdmin ? " on" : "");
+  b.textContent = isAdmin ? "Amministratore attivo" : "Amministratore";
+  document.getElementById("vt-mai").style.display = isAdmin ? "" : "none";
 }
 
 function setView(v) {
   view = v;
   document.getElementById("vt-mese").className = v === "mese" ? "sel" : "";
   document.getElementById("vt-anno").className = v === "anno" ? "sel" : "";
+  document.getElementById("vt-mai").className = "admin-only" + (v === "mai" ? " sel" : "");
   document.getElementById("view-mese").style.display = v === "mese" ? "block" : "none";
   document.getElementById("view-anno").style.display = v === "anno" ? "block" : "none";
+  document.getElementById("view-mai").style.display = v === "mai" ? "block" : "none";
   render();
 }
-function prev() { if (view === "mese") curDate.setMonth(curDate.getMonth() - 1); else curDate.setFullYear(curDate.getFullYear() - 1); render(); }
-function next() { if (view === "mese") curDate.setMonth(curDate.getMonth() + 1); else curDate.setFullYear(curDate.getFullYear() + 1); render(); }
+function prev() { if (view === "mese") curDate.setMonth(curDate.getMonth() - 1); else if (view === "anno") curDate.setFullYear(curDate.getFullYear() - 1); render(); }
+function next() { if (view === "mese") curDate.setMonth(curDate.getMonth() + 1); else if (view === "anno") curDate.setFullYear(curDate.getFullYear() + 1); render(); }
 function oggi() { curDate = new Date(); render(); }
 
 function render() {
+  var navDis = (view === "mai");
+  document.getElementById("btn-prev").style.visibility = navDis ? "hidden" : "visible";
+  document.getElementById("btn-next").style.visibility = navDis ? "hidden" : "visible";
+  document.getElementById("legend").style.display = (view === "mai") ? "none" : "flex";
+  document.getElementById("legend-note").style.display = "inline-flex";
   if (view === "mese") { renderMese(); document.getElementById("curr-label").textContent = MESI_IT[curDate.getMonth()] + " " + curDate.getFullYear(); }
-  else { renderAnno(); document.getElementById("curr-label").textContent = curDate.getFullYear(); }
+  else if (view === "anno") { renderAnno(); document.getElementById("curr-label").textContent = curDate.getFullYear(); }
+  else { renderMai(); document.getElementById("curr-label").textContent = "Mai eseguite"; }
 }
 
 function renderMese() {
   var y = curDate.getFullYear(), m = curDate.getMonth();
   var primo = new Date(y, m, 1);
-  var startOffset = (primo.getDay() + 6) % 7; // lunedì=0
+  var startOffset = (primo.getDay() + 6) % 7;
   var giorniMese = new Date(y, m + 1, 0).getDate();
   var oggiStr = new Date().toDateString();
 
@@ -185,19 +289,48 @@ function renderMese() {
     var inMonth = dayNum >= 1 && dayNum <= giorniMese;
     var cellDate = new Date(y, m, dayNum);
     var isToday = inMonth && cellDate.toDateString() === oggiStr;
-    html += "<div class='cal-cell" + (inMonth ? "" : " out") + (isToday ? " today" : "") + "'>";
+    var dow = cellDate.getDay();
+    var wknd = inMonth && (dow === 0 || dow === 6);
+    html += "<div class='cal-cell" + (inMonth ? "" : " out") + (wknd ? " wknd" : "") + (isToday ? " today" : "") + "'>";
     if (inMonth) {
       html += "<div class='cal-daynum'>" + dayNum + "</div>";
       var evs = eventi.filter(function (e) { return e.data.toDateString() === cellDate.toDateString(); });
-      evs.forEach(function (e) {
-        html += "<a class='cal-item" + (e.stato === "scaduta" ? " out2" : "") + "' href='scheda.html?m=" + encodeURIComponent(e.codice) + "' title='" + esc(e.codice + " - " + e.nome + " - " + e.tipo + ": " + e.descrizione) + "'>" + esc(e.codice) + " " + esc(e.tipo) + "</a>";
-      });
+      if (evs.length) {
+        var cls = evs.some(function (e) { return e.stato === "scaduta"; }) ? " has-scad"
+                : evs.some(function (e) { return e.stato === "imminente"; }) ? " has-imm" : "";
+        html += "<button class='day-summary" + cls + "' onclick='openDay(" + y + "," + m + "," + dayNum + ")'>" +
+                "<span class='n'>" + evs.length + "</span> " + (evs.length === 1 ? "intervento" : "interventi") + "</button>";
+      }
     }
     html += "</div>";
   }
   html += "</div>";
   document.getElementById("view-mese").innerHTML = html;
 }
+
+function openDay(y, m, d) {
+  var cellDate = new Date(y, m, d);
+  var ordine = { scaduta: 0, imminente: 1, programmata: 2 };
+  var evs = eventi.filter(function (e) { return e.data.toDateString() === cellDate.toDateString(); })
+    .sort(function (a, b) {
+      if (ordine[a.stato] !== ordine[b.stato]) return ordine[a.stato] - ordine[b.stato];
+      return (a.codice + a.tipo).localeCompare(b.codice + b.tipo);
+    });
+  document.getElementById("m-title").textContent = d + " " + MESI_IT[m] + " " + y + " — " + evs.length + (evs.length === 1 ? " intervento" : " interventi");
+  var META = { programmata: ["prog", "programmata"], imminente: ["imm", "in scadenza"], scaduta: ["scad", "scaduta"] };
+  var body = evs.map(function (e) {
+    var mt = META[e.stato] || META.programmata;
+    return "<a class='ev-row' href='scheda.html?m=" + encodeURIComponent(e.codice) + "'>" +
+      "<div class='ev-top'><span class='ev-cod'>" + esc(e.codice) + "</span>" +
+      "<span class='ev-nome'>" + esc(e.nome) + "</span>" +
+      "<span class='ev-badge " + mt[0] + "'>" + mt[1] + "</span></div>" +
+      "<div class='ev-desc'>" + esc(e.tipo) + " — " + esc(e.descrizione) + "</div>" +
+      "<div class='ev-open'>Apri scheda macchina →</div></a>";
+  }).join("");
+  document.getElementById("m-body").innerHTML = body || "<div class='s-empty'>Nessun intervento.</div>";
+  document.getElementById("modal").classList.add("open");
+}
+function closeModal() { document.getElementById("modal").classList.remove("open"); }
 
 function renderAnno() {
   var y = curDate.getFullYear();
@@ -206,24 +339,52 @@ function renderAnno() {
     if (e.data.getFullYear() !== y) return;
     var key = e.pianoId;
     if (!righe[key]) righe[key] = { codice: e.codice, nome: e.nome, tipo: e.tipo, descrizione: e.descrizione, mesi: {} };
-    righe[key].mesi[e.data.getMonth()] = e.stato;
+    righe[key].mesi[e.data.getMonth()] = { stato: e.stato, giorno: e.data.getDate() };
   });
   var lista = Object.values(righe).sort(function (a, b) { return (a.codice + a.tipo).localeCompare(b.codice + b.tipo); });
 
   if (!lista.length) { document.getElementById("view-anno").innerHTML = "<div class='s-empty'>Nessuna scadenza calcolabile per il " + y + ".</div>"; return; }
 
-  var html = "<table class='year-table'><thead><tr><th style='text-align:left;'>Macchina</th><th style='text-align:left;'>Intervento</th>";
+  var html = "<div class='year-wrap'><table class='year-table'><thead><tr><th style='text-align:left;'>Macchina</th><th style='text-align:left;'>Intervento</th>";
   MESI_IT.forEach(function (mn) { html += "<th>" + mn.slice(0, 3) + "</th>"; });
   html += "</tr></thead><tbody>";
   lista.forEach(function (r) {
-    html += "<tr><td class='rowlabel'><a href='scheda.html?m=" + encodeURIComponent(r.codice) + "'>" + esc(r.codice) + " — " + esc(r.nome) + "</a></td><td title='" + esc(r.descrizione) + "'>" + esc(r.tipo) + " — " + esc(r.descrizione).slice(0, 40) + "…</td>";
+    html += "<tr><td class='rowlabel'><a href='scheda.html?m=" + encodeURIComponent(r.codice) + "'>" + esc(r.codice) + " — " + esc(r.nome) + "</a></td>" +
+            "<td class='coldesc' title='" + esc(r.descrizione) + "'>" + esc(r.tipo) + " — " + esc(r.descrizione).slice(0, 40) + (r.descrizione.length > 40 ? "…" : "") + "</td>";
     for (var mm = 0; mm < 12; mm++) {
-      html += "<td>" + (r.mesi[mm] ? "<span class='year-mark" + (r.mesi[mm] === "scaduta" ? " past" : "") + "'></span>" : "") + "</td>";
+      var c = r.mesi[mm];
+      if (c) {
+        var mkcls = c.stato === "scaduta" ? "scad" : (c.stato === "imminente" ? "imm" : "prog");
+        html += "<td class='year-cell' onclick='openDay(" + y + "," + mm + "," + c.giorno + ")'>" +
+                "<span class='year-mark " + mkcls + "'>" + c.giorno + "</span></td>";
+      } else { html += "<td></td>"; }
     }
     html += "</tr>";
   });
-  html += "</tbody></table>";
+  html += "</tbody></table></div>";
   document.getElementById("view-anno").innerHTML = html;
+}
+
+function renderMai() {
+  var c = document.getElementById("view-mai");
+  if (!isAdmin) { c.innerHTML = "<div class='s-empty'>Sezione riservata all'amministratore.</div>"; return; }
+  if (!mai.length) { c.innerHTML = "<div class='s-empty'>Nessuna voce di piano priva di storico: tutte le manutenzioni hanno almeno un intervento registrato.</div>"; return; }
+  var byCod = {};
+  mai.forEach(function (m) { (byCod[m.codice] = byCod[m.codice] || []).push(m); });
+  var html = "<div class='mai-intro'>Voci del piano di manutenzione senza alcun intervento registrato: non e&#768; possibile calcolarne una scadenza, vanno programmate manualmente. " +
+             "Totale: <b>" + mai.length + "</b> voci su <b>" + Object.keys(byCod).length + "</b> macchine.</div>";
+  html += "<div class='mai-grid'>";
+  mai.slice().sort(function (a, b) { return (a.codice + a.tipo).localeCompare(b.codice + b.tipo); }).forEach(function (m) {
+    html += "<div class='mai-card'>" +
+      "<div class='mc-top'><span class='mc-cod'>" + esc(m.codice) + " — " + esc(m.nome) + "</span>" +
+      "<span class='mc-freq'>ogni " + esc(m.freq) + " mesi</span></div>" +
+      "<div class='mc-tipo'>" + esc(m.tipo) + "</div>" +
+      "<div class='mc-desc'>" + esc(m.descrizione) + "</div>" +
+      "<a class='mc-link' href='scheda.html?m=" + encodeURIComponent(m.codice) + "'>Apri scheda &rarr; registra il primo intervento</a>" +
+    "</div>";
+  });
+  html += "</div>";
+  c.innerHTML = html;
 }
 </script>
 </body>
