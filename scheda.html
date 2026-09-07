@@ -397,7 +397,7 @@ function renderHeader() {
 }
 
 function renderMcard() {
-  var fields = [["Tipo", macchina.Nome], ["Marca", macchina.Marca], ["Modello", macchina.Modello], ["Matricola", macchina.Matricola], ["Anno", macchina.Anno], ["N Interno", macchina["N Interno"]], ["Linea", macchina.Linea], ["CE", macchina.CE]];
+  var fields = [["Tipo", macchina.Nome], ["Marca", macchina.Marca], ["Modello", macchina.Modello], ["Matricola", macchina.Matricola], ["Anno", macchina.Anno], ["Linea", macchina.Linea], ["CE", macchina.CE]];
   document.getElementById("mcard").innerHTML = fields.map(function (f) {
     return "<div><div class='mf-l'>" + f[0] + "</div><div class='mf-v'>" + (f[1] || "—") + "</div></div>";
   }).join("");
@@ -447,14 +447,14 @@ function updateAdminUI() {
 }
 
 function renderAdminAnagrafica() {
-  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "N Interno", "Linea", "CE"];
+  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "Linea", "CE"];
   document.getElementById("admin-fields").innerHTML = fields.map(function (f) {
     return "<div class='field'><label>" + f + "</label><input type='text' id='a-" + f.replace(/\s/g, '') + "' value=\"" + esc(macchina[f] || "") + "\"></div>";
   }).join("");
   document.getElementById("a-link").value = macchina["Link Manuale"] || "";
 }
 function salvaAnagrafica() {
-  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "N Interno", "Linea", "CE"];
+  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "Linea", "CE"];
   var data = { ID: macchina.ID };
   fields.forEach(function (f) { data[f] = document.getElementById("a-" + f.replace(/\s/g, '')).value; });
   data["Link Manuale"] = document.getElementById("a-link").value;
