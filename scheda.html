@@ -109,142 +109,142 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </head>
 <body>
 <header class="app-header">
-  <div class="hl">
-    <div class="hbadge" id="h-badge">—</div>
-    <div><div class="htitle" id="h-title">Caricamento...</div><div class="hsub" id="h-sub"></div></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:14px;">
-    <div class="hlinks"><a href="index.html">Tutte le macchine</a><a href="calendario.html">Calendario</a></div>
-    <button class="adminbtn" id="admin-toggle" onclick="toggleAdmin()">🔒 Amministratore</button>
-    <div class="htime" id="live-clock">--:--</div>
-  </div>
+<div class="hl">
+<div class="hbadge" id="h-badge">—</div>
+<div><div class="htitle" id="h-title">Caricamento...</div><div class="hsub" id="h-sub"></div></div>
+</div>
+<div style="display:flex;align-items:center;gap:14px;">
+<div class="hlinks"><a href="index.html">Tutte le macchine</a><a href="calendario.html">Calendario</a></div>
+<button class="adminbtn" id="admin-toggle" onclick="toggleAdmin()">Amministratore</button>
+<div class="htime" id="live-clock">--:--</div>
+</div>
 </header>
 
 <div class="main" id="main-content" style="display:none;">
-  <div class="sec">
-    <div class="sec-h">🔧 Dati macchina</div>
-    <div class="sec-b">
-      <div class="mcard" id="mcard"></div>
-      <div id="manuale-link" style="margin-top:12px;"></div>
-    </div>
-  </div>
+<div class="sec">
+<div class="sec-h">Dati macchina</div>
+<div class="sec-b">
+<div class="mcard" id="mcard"></div>
+<div id="manuale-link" style="margin-top:12px;"></div>
+</div>
+</div>
 
-  <div class="sec admin-sec" id="admin-anagrafica" style="display:none;">
-    <div class="sec-h">🔒 Modifica dati macchina</div>
-    <div class="sec-b">
-      <div class="g3" id="admin-fields" style="margin-bottom:12px;"></div>
-      <div class="field" style="margin-bottom:12px;"><label>Link manuale (Drive)</label><input type="text" id="a-link"></div>
-      <button class="btnsm primary" onclick="salvaAnagrafica()">💾 Salva dati macchina</button>
-    </div>
-  </div>
+<div class="sec admin-sec" id="admin-anagrafica" style="display:none;">
+<div class="sec-h">Modifica dati macchina</div>
+<div class="sec-b">
+<div class="g3" id="admin-fields" style="margin-bottom:12px;"></div>
+<div class="field" style="margin-bottom:12px;"><label>Link manuale (Drive)</label><input type="text" id="a-link"></div>
+<button class="btnsm primary" onclick="salvaAnagrafica()">Salva dati macchina</button>
+</div>
+</div>
 
-  <div class="sec">
-    <div class="sec-h">🧪 Prodotti chimici utilizzati</div>
-    <div class="sec-b" id="chem-view"></div>
-  </div>
-  <div class="sec admin-sec" id="admin-chem" style="display:none;">
-    <div class="sec-h">🔒 Modifica prodotti chimici</div>
-    <div class="sec-b">
-      <div class="field" style="margin-bottom:12px;"><label>Un prodotto per riga (es. Grasso alimentare NSF H1)</label><textarea id="a-chem"></textarea></div>
-      <button class="btnsm primary" onclick="salvaChimici()">💾 Salva prodotti chimici</button>
-    </div>
-  </div>
+<div class="sec">
+<div class="sec-h">Prodotti chimici utilizzati</div>
+<div class="sec-b" id="chem-view"></div>
+</div>
+<div class="sec admin-sec" id="admin-chem" style="display:none;">
+<div class="sec-h">Modifica prodotti chimici</div>
+<div class="sec-b">
+<div class="field" style="margin-bottom:12px;"><label>Un prodotto per riga (es. Grasso alimentare NSF H1)</label><textarea id="a-chem"></textarea></div>
+<button class="btnsm primary" onclick="salvaChimici()">Salva prodotti chimici</button>
+</div>
+</div>
 
-  <div class="sec">
-    <div class="sec-h">⚠️ Pittogrammi rischio e DPI richiesti</div>
-    <div class="sec-b">
-      <div style="margin-bottom:14px;"><div class="tlabel">DPI obbligatori</div><div class="picto-grid" id="picto-dpi-view"></div></div>
-      <div><div class="tlabel">Rischi presenti</div><div class="picto-grid" id="picto-risk-view"></div></div>
-    </div>
-  </div>
-  <div class="sec admin-sec" id="admin-picto" style="display:none;">
-    <div class="sec-h">🔒 Seleziona pittogrammi</div>
-    <div class="sec-b">
-      <div style="margin-bottom:14px;"><div class="tlabel">DPI</div><div class="picto-grid" id="picto-dpi-pick"></div></div>
-      <div style="margin-bottom:14px;"><div class="tlabel">Rischi</div><div class="picto-grid" id="picto-risk-pick"></div></div>
-      <button class="btnsm primary" onclick="salvaPittogrammi()">💾 Salva pittogrammi</button>
-    </div>
-  </div>
+<div class="sec">
+<div class="sec-h">Pittogrammi rischio e DPI richiesti</div>
+<div class="sec-b">
+<div style="margin-bottom:14px;"><div class="tlabel">DPI obbligatori</div><div class="picto-grid" id="picto-dpi-view"></div></div>
+<div><div class="tlabel">Rischi presenti</div><div class="picto-grid" id="picto-risk-view"></div></div>
+</div>
+</div>
+<div class="sec admin-sec" id="admin-picto" style="display:none;">
+<div class="sec-h">Seleziona pittogrammi</div>
+<div class="sec-b">
+<div style="margin-bottom:14px;"><div class="tlabel">DPI</div><div class="picto-grid" id="picto-dpi-pick"></div></div>
+<div style="margin-bottom:14px;"><div class="tlabel">Rischi</div><div class="picto-grid" id="picto-risk-pick"></div></div>
+<button class="btnsm primary" onclick="salvaPittogrammi()">Salva pittogrammi</button>
+</div>
+</div>
 
-  <div class="sec">
-    <div class="sec-h">⏰ Stato manutenzioni programmate</div>
-    <div class="sec-b"><div class="scad-grid" id="scad-grid"><div class="s-empty">⏳ Caricamento...</div></div></div>
-  </div>
+<div class="sec">
+<div class="sec-h">Stato manutenzioni programmate</div>
+<div class="sec-b"><div class="scad-grid" id="scad-grid"><div class="s-empty">Caricamento...</div></div></div>
+</div>
 
-  <div class="sec admin-sec" id="admin-piano" style="display:none;">
-    <div class="sec-h">🔒 Modifica piano di manutenzione</div>
-    <div class="sec-b">
-      <div id="piano-list" style="margin-bottom:16px;"></div>
-      <div class="tlabel">+ Aggiungi voce al piano</div>
-      <div class="g3" style="margin-bottom:10px;">
-        <div class="field"><label>Tipo</label><input type="text" id="p-tipo" placeholder="es. Semestrale"></div>
-        <div class="field"><label>Frequenza (mesi)</label><input type="number" id="p-mesi" placeholder="es. 6"></div>
-        <div class="field"><label>Descrizione</label><input type="text" id="p-desc" placeholder="Cosa va fatto"></div>
-      </div>
-      <button class="btnsm primary" onclick="aggiungiPiano()">+ Aggiungi al piano</button>
-    </div>
-  </div>
+<div class="sec admin-sec" id="admin-piano" style="display:none;">
+<div class="sec-h">Modifica piano di manutenzione</div>
+<div class="sec-b">
+<div id="piano-list" style="margin-bottom:16px;"></div>
+<div class="tlabel">+ Aggiungi voce al piano</div>
+<div class="g3" style="margin-bottom:10px;">
+<div class="field"><label>Tipo</label><input type="text" id="p-tipo" placeholder="es. Semestrale"></div>
+<div class="field"><label>Frequenza (mesi)</label><input type="number" id="p-mesi" placeholder="es. 6"></div>
+<div class="field"><label>Descrizione</label><input type="text" id="p-desc" placeholder="Cosa va fatto"></div>
+</div>
+<button class="btnsm primary" onclick="aggiungiPiano()">+ Aggiungi al piano</button>
+</div>
+</div>
 
-  <div class="sec">
-    <div class="sec-h">➕ Registra nuovo intervento</div>
-    <div class="sec-b">
-      <div class="tlabel">Cosa hai fatto</div>
-      <div class="field" style="margin-bottom:14px;">
-        <select id="int-piano" onchange="setPiano(this.value)">
-          <option value="">— Seleziona una voce dal piano di manutenzione —</option>
-        </select>
-      </div>
-      <div class="g2" style="margin-bottom:14px">
-        <div class="field"><label>Data intervento</label><input type="date" id="int-data"></div>
-        <div class="field"><label>Nome manutentore</label><input type="text" id="int-manut" placeholder="Nome e cognome" oninput="aggInfo()"></div>
-      </div>
-      <div class="field" style="margin-bottom:14px">
-        <label>Descrizione intervento</label>
-        <textarea id="int-desc" placeholder="Descrivere l'intervento eseguito..." oninput="aggInfo()"></textarea>
-      </div>
-      <div class="tlabel">⚕️ Idoneità igienica dopo l'intervento</div>
-      <div class="igwrap">
-        <button class="igbtn" id="ig-ok" onclick="setIg('OK')">✅ OK — Idoneità igienica ripristinata</button>
-        <button class="igbtn" id="ig-nok" onclick="setIg('NOK')">❌ NOK — Idoneità igienica NON ripristinata</button>
-      </div>
-    </div>
-  </div>
+<div class="sec">
+<div class="sec-h">Registra nuovo intervento</div>
+<div class="sec-b">
+<div class="tlabel">Cosa hai fatto</div>
+<div class="field" style="margin-bottom:14px;">
+<select id="int-piano" onchange="setPiano(this.value)">
+<option value="">— Seleziona una voce dal piano di manutenzione —</option>
+</select>
+</div>
+<div class="g2" style="margin-bottom:14px">
+<div class="field"><label>Data intervento</label><input type="date" id="int-data"></div>
+<div class="field"><label>Nome manutentore</label><input type="text" id="int-manut" placeholder="Nome e cognome" oninput="aggInfo()"></div>
+</div>
+<div class="field" style="margin-bottom:14px">
+<label>Descrizione intervento</label>
+<textarea id="int-desc" placeholder="Descrivere l'intervento eseguito..." oninput="aggInfo()"></textarea>
+</div>
+<div class="tlabel">Idoneità igienica dopo l'intervento</div>
+<div class="igwrap">
+<button class="igbtn" id="ig-ok" onclick="setIg('OK')">OK — Idoneità igienica ripristinata</button>
+<button class="igbtn" id="ig-nok" onclick="setIg('NOK')">NOK — Idoneità igienica NON ripristinata</button>
+</div>
+</div>
+</div>
 
-  <div class="sec">
-    <div class="sec-h">📋 Storico interventi</div>
-    <div class="sec-b" id="storico"><div class="s-empty">⏳ Caricamento storico...</div></div>
-  </div>
+<div class="sec">
+<div class="sec-h">Storico interventi</div>
+<div class="sec-b" id="storico"><div class="s-empty">Caricamento storico...</div></div>
+</div>
 </div>
 
 <div class="main" id="notfound-content" style="display:none;">
-  <div class="sec"><div class="sec-b" style="text-align:center;padding:50px 20px;">
-    <div style="font-size:2.4rem;margin-bottom:10px;">🔍</div>
-    <div style="font-weight:600;margin-bottom:8px;">Macchina non trovata</div>
-    <div style="color:var(--muted);font-size:.88rem;margin-bottom:18px;" id="notfound-code"></div>
-    <div id="notfound-admin" style="display:none;">
-      <div class="tlabel">Crea la scheda per questa macchina</div>
-      <div class="g2" style="margin-bottom:10px;max-width:420px;margin-left:auto;margin-right:auto;">
-        <div class="field"><label>Codice</label><input type="text" id="nf-codice"></div>
-        <div class="field"><label>Nome macchina</label><input type="text" id="nf-nome"></div>
-      </div>
-      <button class="btnsm primary" onclick="creaMacchina()">+ Crea scheda macchina</button>
-    </div>
-  </div></div>
+<div class="sec"><div class="sec-b" style="text-align:center;padding:50px 20px;">
+<div style="font-size:2.4rem;margin-bottom:10px;"></div>
+<div style="font-weight:600;margin-bottom:8px;">Macchina non trovata</div>
+<div style="color:var(--muted);font-size:.88rem;margin-bottom:18px;" id="notfound-code"></div>
+<div id="notfound-admin" style="display:none;">
+<div class="tlabel">Crea la scheda per questa macchina</div>
+<div class="g2" style="margin-bottom:10px;max-width:420px;margin-left:auto;margin-right:auto;">
+<div class="field"><label>Codice</label><input type="text" id="nf-codice"></div>
+<div class="field"><label>Nome macchina</label><input type="text" id="nf-nome"></div>
+</div>
+<button class="btnsm primary" onclick="creaMacchina()">+ Crea scheda macchina</button>
+</div>
+</div></div>
 </div>
 
 <div class="subbar" id="subbar" style="display:none;">
-  <div class="subinfo" id="subinfo">Seleziona tipo e compila i campi</div>
-  <button class="subbtn" id="btn-salva" onclick="salvaIntervento()">💾 Salva intervento</button>
+<div class="subinfo" id="subinfo">Seleziona tipo e compila i campi</div>
+<button class="subbtn" id="btn-salva" onclick="salvaIntervento()">Salva intervento</button>
 </div>
 
 <div class="modal-overlay" id="modal">
-  <div class="modal" id="modal-box">
-    <div class="modal-icon" id="m-icon"></div>
-    <div class="modal-title" id="m-title"></div>
-    <div class="modal-msg" id="m-msg"></div>
-    <div id="m-extra"></div>
-    <button class="modal-close" onclick="closeModal()">OK</button>
-  </div>
+<div class="modal" id="modal-box">
+<div class="modal-icon" id="m-icon"></div>
+<div class="modal-title" id="m-title"></div>
+<div class="modal-msg" id="m-msg"></div>
+<div id="m-extra"></div>
+<button class="modal-close" onclick="closeModal()">OK</button>
+</div>
 </div>
 
 <script>
@@ -267,9 +267,10 @@ var PITTO_DPI = {
   M027:{f:"pittogrammi/M027.svg",l:"Controllare la protezione"},
   M028:{f:"pittogrammi/M028.svg",l:"Bloccare con lucchetto"},
   M031:{f:"pittogrammi/M031.svg",l:"Protezione sega regolabile"},
-  M032:{f:"pittogrammi/M032.svg",l:"Calzature antistatiche"},
+  M003:{f:"pittogrammi/M003.svg",l:"Cuffie antirumore obbligatorie"},
   M008:{f:"pittogrammi/M008.svg",l:"Calzature di sicurezza (puntale + suola antiperforazione)"},
-M008B:{f:"pittogrammi/M008B.svg",l:"Calzature di sicurezza impermeabili (antiscivolo, antiperforazione, puntale)"},
+  M008B:{f:"pittogrammi/M008B.svg",l:"Calzature di sicurezza impermeabili (antiscivolo, antiperforazione, puntale)"},
+  M032:{f:"pittogrammi/M032.svg",l:"Calzature antistatiche"},
   M047:{f:"pittogrammi/M047.svg",l:"Autorespiratore"},
   M048:{f:"pittogrammi/M048.svg",l:"Rilevatore di gas"},
   M068:{f:"pittogrammi/M068.svg",l:"Isolare prima di manutenzione"},
@@ -366,7 +367,7 @@ function caricaTutto() {
       renderStorico();
     })
     .catch(function (err) {
-      modal("❌", "Errore di caricamento", "Impossibile contattare il backend: " + err.message);
+      modal("", "Errore di caricamento", "Impossibile contattare il backend: " + err.message);
     });
 }
 
@@ -381,7 +382,7 @@ function renderNotFound() {
 function creaMacchina() {
   var cod = document.getElementById("nf-codice").value.trim();
   var nome = document.getElementById("nf-nome").value.trim();
-  if (!cod || !nome) { modal("⚠️", "Campi mancanti", "Inserisci codice e nome macchina."); return; }
+  if (!cod || !nome) { modal("", "Campi mancanti", "Inserisci codice e nome macchina."); return; }
   post('write', 'Macchine', { Codice: cod, Nome: nome }).then(function () {
     window.location.href = "scheda.html?m=" + encodeURIComponent(cod);
   });
@@ -403,7 +404,7 @@ function renderMcard() {
 }
 function renderManualeLink() {
   var el = document.getElementById("manuale-link");
-  el.innerHTML = macchina["Link Manuale"] ? "<a class='btnsm' target='_blank' href='" + esc(macchina["Link Manuale"]) + "'>📄 Apri manuale macchina</a>" : "";
+  el.innerHTML = macchina["Link Manuale"] ? "<a class='btnsm' target='_blank' href='" + esc(macchina["Link Manuale"]) + "'>Apri manuale macchina</a>" : "";
 }
 
 function renderChimici() {
@@ -411,7 +412,7 @@ function renderChimici() {
   var el = document.getElementById("chem-view");
   if (!raw) { el.innerHTML = "<div class='s-empty'>Nessun prodotto chimico registrato.</div>"; return; }
   var items = raw.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
-  el.innerHTML = "<div class='chem-list'>" + items.map(function (i) { return "<div class='chem-item'>🧪 " + esc(i) + "</div>"; }).join("") + "</div>";
+  el.innerHTML = "<div class='chem-list'>" + items.map(function (i) { return "<div class='chem-item'> " + esc(i) + "</div>"; }).join("") + "</div>";
 }
 
 function pittoGrid(codes, lib) {
@@ -432,12 +433,12 @@ function toggleAdmin() {
   var pwd = prompt("Password amministratore:");
   if (pwd === null) return;
   if (pwd === ADMIN_PWD) { isAdmin = true; sessionStorage.setItem(ADMIN_KEY, "1"); updateAdminUI(); }
-  else modal("❌", "Password errata", "Riprova.");
+  else modal("", "Password errata", "Riprova.");
 }
 function updateAdminUI() {
   var btn = document.getElementById("admin-toggle");
   btn.className = "adminbtn" + (isAdmin ? " on" : "");
-  btn.textContent = isAdmin ? "🔓 Amministratore attivo" : "🔒 Amministratore";
+  btn.textContent = isAdmin ? "Amministratore attivo" : "Amministratore";
   ["admin-anagrafica", "admin-chem", "admin-picto", "admin-piano"].forEach(function (id) {
     document.getElementById(id).style.display = isAdmin ? "block" : "none";
   });
@@ -457,7 +458,7 @@ function salvaAnagrafica() {
   var data = { ID: macchina.ID };
   fields.forEach(function (f) { data[f] = document.getElementById("a-" + f.replace(/\s/g, '')).value; });
   data["Link Manuale"] = document.getElementById("a-link").value;
-  post('update', 'Macchine', data).then(function () { modal("✅", "Salvato", "Dati macchina aggiornati."); caricaTutto(); });
+  post('update', 'Macchine', data).then(function () { modal("", "Salvato", "Dati macchina aggiornati."); caricaTutto(); });
 }
 
 function renderAdminChem() {
@@ -465,7 +466,7 @@ function renderAdminChem() {
 }
 function salvaChimici() {
   post('update', 'Macchine', { ID: macchina.ID, "Prodotti Chimici": document.getElementById("a-chem").value })
-    .then(function () { modal("✅", "Salvato", "Prodotti chimici aggiornati."); caricaTutto(); });
+    .then(function () { modal("", "Salvato", "Prodotti chimici aggiornati."); caricaTutto(); });
 }
 
 function renderAdminPicto() {
@@ -486,7 +487,7 @@ function salvaPittogrammi() {
   var dpi = Array.from(document.querySelectorAll("[data-group=dpi].sel")).map(function (e) { return e.dataset.code; }).join(", ");
   var risk = Array.from(document.querySelectorAll("[data-group=risk].sel")).map(function (e) { return e.dataset.code; }).join(", ");
   post('update', 'Macchine', { ID: macchina.ID, "Pittogrammi DPI": dpi, "Pittogrammi Rischio": risk })
-    .then(function () { modal("✅", "Salvato", "Pittogrammi aggiornati."); caricaTutto(); });
+    .then(function () { modal("", "Salvato", "Pittogrammi aggiornati."); caricaTutto(); });
 }
 
 function renderPianoAdmin() {
@@ -494,14 +495,14 @@ function renderPianoAdmin() {
   if (!piano.length) { el.innerHTML = "<div class='s-empty'>Nessuna voce nel piano.</div>"; return; }
   el.innerHTML = piano.map(function (p) {
     return "<div class='plan-row'><div class='pinfo'><b>" + esc(p.Tipo) + "</b> — ogni " + esc(p["Frequenza Mesi"]) + " mesi<br><span style='color:var(--muted);font-size:.8rem'>" + esc(p.Descrizione) + "</span></div>" +
-      "<button class='btnsm danger' onclick=\"eliminaPiano('" + p.ID + "')\">🗑️ Elimina</button></div>";
+      "<button class='btnsm danger' onclick=\"eliminaPiano('" + p.ID + "')\">Elimina</button></div>";
   }).join("");
 }
 function aggiungiPiano() {
   var t = document.getElementById("p-tipo").value.trim();
   var m = document.getElementById("p-mesi").value.trim();
   var d = document.getElementById("p-desc").value.trim();
-  if (!t || !m || !d) { modal("⚠️", "Campi mancanti", "Compila tipo, frequenza e descrizione."); return; }
+  if (!t || !m || !d) { modal("", "Campi mancanti", "Compila tipo, frequenza e descrizione."); return; }
   post('write', 'Piano Manutenzione', { "Codice Macchina": MAC, Tipo: t, "Frequenza Mesi": m, Descrizione: d })
     .then(function () {
       document.getElementById("p-tipo").value = ""; document.getElementById("p-mesi").value = ""; document.getElementById("p-desc").value = "";
@@ -521,7 +522,7 @@ function renderTipoBtns() {
   opts += piano.map(function (p) {
     return "<option value=\"" + esc(p.ID) + "\">" + esc(p.Tipo) + " — " + esc(p.Descrizione).slice(0, 90) + "</option>";
   }).join("");
-  opts += "<option value=\"STR\">🔴 Straordinaria (intervento non pianificato)</option>";
+  opts += "<option value=\"STR\">Straordinaria (intervento non pianificato)</option>";
   sel.innerHTML = opts;
   pianoIdSelezionato = "";
   tipo = "";
@@ -550,15 +551,15 @@ function salvaIntervento() {
   var mn = document.getElementById("int-manut").value.trim();
   var ds = document.getElementById("int-desc").value.trim();
   var dt = document.getElementById("int-data").value;
-  if (!tipo) { modal("⚠️", "Tipo mancante", "Seleziona il tipo di intervento."); return; }
-  if (!ig) { modal("⚠️", "Campo mancante", "Indica l'idoneità igienica."); return; }
-  if (!mn) { modal("⚠️", "Campo mancante", "Inserisci il nome del manutentore."); return; }
-  if (!ds) { modal("⚠️", "Campo mancante", "Inserisci la descrizione."); return; }
+  if (!tipo) { modal("", "Tipo mancante", "Seleziona il tipo di intervento."); return; }
+  if (!ig) { modal("", "Campo mancante", "Indica l'idoneità igienica."); return; }
+  if (!mn) { modal("", "Campo mancante", "Inserisci il nome del manutentore."); return; }
+  if (!ds) { modal("", "Campo mancante", "Inserisci la descrizione."); return; }
   var btn = document.getElementById("btn-salva");
-  btn.disabled = true; btn.textContent = "⏳ Salvataggio...";
+  btn.disabled = true; btn.textContent = "Salvataggio...";
   post('write', 'Interventi Manutenzione', { "Codice Macchina": MAC, Data: dt, Tipo: tipo, Manutentore: mn, Descrizione: ds, "Idoneita Igienica": ig, "Piano ID": pianoIdSelezionato === "STR" ? "" : pianoIdSelezionato })
     .then(function (j) {
-      btn.disabled = false; btn.textContent = "💾 Salva intervento";
+      btn.disabled = false; btn.textContent = "Salva intervento";
       tipo = ""; ig = ""; pianoIdSelezionato = "";
       document.getElementById("int-piano").value = "";
       document.getElementById("ig-ok").className = "igbtn";
@@ -566,10 +567,10 @@ function salvaIntervento() {
       document.getElementById("int-manut").value = "";
       document.getElementById("int-desc").value = "";
       document.getElementById("int-data").valueAsDate = new Date();
-      modal("✅", "Intervento salvato!", "Salvato correttamente sul foglio manutenzioni.");
+      modal("", "Intervento salvato!", "Salvato correttamente sul foglio manutenzioni.");
       caricaTutto();
     })
-    .catch(function () { btn.disabled = false; btn.textContent = "💾 Salva intervento"; modal("❌", "Errore di rete", "Verifica la connessione e riprova."); });
+    .catch(function () { btn.disabled = false; btn.textContent = "Salva intervento"; modal("", "Errore di rete", "Verifica la connessione e riprova."); });
 }
 
 /* ---- Stato manutenzioni + storico ---- */
@@ -588,8 +589,8 @@ function renderScad() {
       var sc = new Date(du); sc.setMonth(sc.getMonth() + mesi);
       var dg = Math.round((sc - new Date()) / 86400000);
       di = "Ultimo: " + du.toLocaleDateString("it-IT") + " — Scade: " + sc.toLocaleDateString("it-IT");
-      if (dg < 0) { badge = "SCADUTA (" + Math.abs(dg) + "gg)"; bc = "b-out"; cc = "scad-out"; }
-      else if (dg <= 30) { badge = "IN SCADENZA (" + dg + "gg)"; bc = "b-warn"; cc = "warn"; }
+      if (dg< 0) { badge = "SCADUTA (" + Math.abs(dg) + "gg)"; bc = "b-out"; cc = "scad-out"; }
+      else if (dg<= 30) { badge = "IN SCADENZA (" + dg + "gg)"; bc = "b-warn"; cc = "warn"; }
       else { badge = "OK (" + dg + "gg)"; bc = "b-ok"; cc = "ok"; }
     }
     return "<div class='scad " + cc + "'><div class='scad-top'><span class='scad-freq'>Ogni " + mesi + " mesi</span><span class='badge " + bc + "'>" + badge + "</span></div>" +
@@ -604,11 +605,11 @@ function renderStorico() {
     return "<div class='icard " + (i["Idoneita Igienica"] === "NOK" ? "nok" : "") + "'>" +
       "<div class='icard-top'>" +
       "<span class='itipo" + (i.Tipo === "Straordinaria" ? " str" : "") + "'>" + esc(i.Tipo) + "</span>" +
-      "<span class='idt'>📅 " + esc(formatData(i.Data)) + "</span>" +
-      "<span class='imn'>👤 " + esc(i.Manutentore) + "</span>" +
+      "<span class='idt'> " + esc(formatData(i.Data)) + "</span>" +
+      "<span class='imn'> " + esc(i.Manutentore) + "</span>" +
       "</div>" +
       "<div class='idesc'>" + esc(i.Descrizione) + "</div>" +
-      "<span class='iiig " + (i["Idoneita Igienica"] === "OK" ? "iig-ok" : "iig-nok") + "'>" + (i["Idoneita Igienica"] === "OK" ? "✅ Idoneità igienica: OK" : "❌ Idoneità igienica: NOK") + "</span>" +
+      "<span class='iiig " + (i["Idoneita Igienica"] === "OK" ? "iig-ok" : "iig-nok") + "'>" + (i["Idoneita Igienica"] === "OK" ? "Idoneità igienica: OK" : "Idoneità igienica: NOK") + "</span>" +
       "</div>";
   }).join("");
 }
