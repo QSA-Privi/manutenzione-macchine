@@ -63,7 +63,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 .year-table td.coldesc{text-align:left;color:var(--muted);}
 .year-cell{cursor:pointer;}
 .year-cell:hover{background:#fafafa;}
-.year-mark{display:inline-block;min-width:20px;height:18px;line-height:18px;border-radius:3px;font-size:.66rem;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#fff;padding:0 4px;}
+.year-mark{display:inline-block;width:28px;height:13px;border-radius:7px;}
 .year-mark.prog{background:var(--prog);}
 .year-mark.imm{background:var(--imm);}
 .year-mark.scad{background:var(--scad);}
@@ -98,8 +98,14 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 .ev-open{font-size:.7rem;color:var(--admin);font-weight:600;margin-top:6px;}
 
 @media print{
+  *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;}
   .app-header,.hlinks,.adminbtn,.nav button,.viewtoggle,.printbtn{display:none!important;}
   body{padding:0;} .main{max-width:100%;padding:0;}
+  .toolbar{margin-bottom:8px;} .curr{font-size:1.2rem;}
+  .year-wrap{overflow:visible!important;} .year-table{min-width:0!important;font-size:.7rem;}
+  .year-table th,.year-table td{padding:5px 4px;}
+  .cal-cell{min-height:70px;}
+  .day-summary,.year-mark,.ev-badge,.legend .sw{box-shadow:none;}
   @page{size:landscape;margin:10mm;}
 }
 </style>
@@ -134,7 +140,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 <span class="k"><span class="sw sw-prog"></span> Programmata &mdash; scadenza futura</span>
 <span class="k"><span class="sw sw-imm"></span> In scadenza / da fare &mdash; fino a ~3 settimane di ritardo</span>
 <span class="k"><span class="sw sw-scad"></span> Scaduta &mdash; oltre 3 settimane di ritardo</span>
-<span class="k" id="legend-note" style="display:none;">Le scadenze di sab/dom sono anticipate al venerdi&#768;.</span>
+<span class="k" id="legend-note" style="display:none;">Le scadenze di sab/dom sono anticipate al venerdi&#768;. In vista Anno, clicca una casella per data ed elenco interventi.</span>
 </div>
 
 <div id="view-mese"><div class="s-empty">Caricamento...</div></div>
@@ -355,8 +361,9 @@ function renderAnno() {
       var c = r.mesi[mm];
       if (c) {
         var mkcls = c.stato === "scaduta" ? "scad" : (c.stato === "imminente" ? "imm" : "prog");
-        html += "<td class='year-cell' onclick='openDay(" + y + "," + mm + "," + c.giorno + ")'>" +
-                "<span class='year-mark " + mkcls + "'>" + c.giorno + "</span></td>";
+        var lblStato = c.stato === "scaduta" ? "scaduta" : (c.stato === "imminente" ? "in scadenza" : "programmata");
+        html += "<td class='year-cell' title='Scade il " + c.giorno + " " + MESI_IT[mm] + " " + y + " — " + lblStato + " (clic per l'elenco)' onclick='openDay(" + y + "," + mm + "," + c.giorno + ")'>" +
+                "<span class='year-mark " + mkcls + "'></span></td>";
       } else { html += "<td></td>"; }
     }
     html += "</tr>";
