@@ -76,8 +76,11 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 .mai-card .mc-freq{font-size:.66rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
 .mai-card .mc-tipo{font-size:.78rem;font-weight:600;margin-bottom:3px;}
 .mai-card .mc-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+.mai-card .mc-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;}
 .mai-card a.mc-link{font-size:.74rem;font-weight:600;color:var(--admin);text-decoration:none;}
 .mai-card a.mc-link:hover{text-decoration:underline;}
+.mai-card .mc-del{font-size:.72rem;font-weight:600;cursor:pointer;background:#fff;border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:5px 10px;}
+.mai-card .mc-del:hover{background:var(--danger);color:#fff;}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:400;padding:16px;}
 .modal-overlay.open{display:flex;}
@@ -183,6 +186,13 @@ function jsonp(params) {
   });
 }
 function readSheet(name) { return jsonp({ action: 'read', sheet: name }).then(function (j) { return j.rows || []; }); }
+function post(action, sheet, data) {
+  return fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: action, sheet: sheet, data: data })
+  }).then(function (r) { return r.json(); });
+}
 function esc(s) { return (s === undefined || s === null) ? "" : String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function two(n){ return (n<10?"0":"")+n; }
 function iso(d){ return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate()); }
@@ -199,13 +209,27 @@ function spostaFeriale(d) {
 isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
 updateAdminUI();
 
-Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')]).then(function (res) {
-  macchine = res[0]; piano = res[1]; storico = res[2];
-  calcolaEventi();
-  render();
-}).catch(function (e) {
-  document.getElementById("view-mese").innerHTML = "<div class='s-empty'>Impossibile contattare il backend: " + esc(e.message) + "</div>";
-});
+function caricaDati() {
+  return Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')]).then(function (res) {
+    macchine = res[0]; piano = res[1]; storico = res[2];
+    calcolaEventi();
+    render();
+  }).catch(function (e) {
+    document.getElementById("view-mese").innerHTML = "<div class='s-empty'>Impossibile contattare il backend: " + esc(e.message) + "</div>";
+  });
+}
+caricaDati();
+
+/* elimina una voce dal Piano di Manutenzione (solo admin, dalla vista "Mai eseguite") */
+function eliminaVocePiano(id, etichetta) {
+  if (!isAdmin) return;
+  if (!confirm("Eliminare definitivamente questa voce dal piano di manutenzione?\n\n" + etichetta +
+    "\n\nNon verra' piu' tracciata ne' mostrata nel calendario.")) return;
+  post('delete', 'Piano Manutenzione', { ID: id }).then(function (j) {
+    if (j && j.error) { alert("Errore: " + j.error); return; }
+    caricaDati();
+  }).catch(function () { alert("Errore di rete, riprova."); });
+}
 
 function calcolaEventi() {
   eventi = []; mai = [];
@@ -220,7 +244,7 @@ function calcolaEventi() {
       .sort(function (a, b) { return new Date(b.Data) - new Date(a.Data); });
     var mesi = parseFloat(p['Frequenza Mesi']) || 0;
     if (!interventi.length) {
-      mai.push({ codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione, freq: p['Frequenza Mesi'] });
+      mai.push({ id: p.ID, codice: cod, nome: nome, tipo: p.Tipo, descrizione: p.Descrizione, freq: p['Frequenza Mesi'] });
       return;
     }
     var ultimo = new Date(interventi[0].Data);
@@ -382,12 +406,16 @@ function renderMai() {
              "Totale: <b>" + mai.length + "</b> voci su <b>" + Object.keys(byCod).length + "</b> macchine.</div>";
   html += "<div class='mai-grid'>";
   mai.slice().sort(function (a, b) { return (a.codice + a.tipo).localeCompare(b.codice + b.tipo); }).forEach(function (m) {
+    var et = (m.codice + " " + m.tipo + " — " + m.descrizione).replace(/'/g, "\\'").replace(/"/g, "&quot;");
     html += "<div class='mai-card'>" +
       "<div class='mc-top'><span class='mc-cod'>" + esc(m.codice) + " — " + esc(m.nome) + "</span>" +
       "<span class='mc-freq'>ogni " + esc(m.freq) + " mesi</span></div>" +
       "<div class='mc-tipo'>" + esc(m.tipo) + "</div>" +
       "<div class='mc-desc'>" + esc(m.descrizione) + "</div>" +
+      "<div class='mc-actions'>" +
       "<a class='mc-link' href='scheda.html?m=" + encodeURIComponent(m.codice) + "'>Apri scheda &rarr; registra il primo intervento</a>" +
+      "<button class='mc-del' onclick=\"eliminaVocePiano('" + esc(m.id) + "','" + et + "')\">Non tracciare / elimina</button>" +
+      "</div>" +
     "</div>";
   });
   html += "</div>";
