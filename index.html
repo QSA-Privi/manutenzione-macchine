@@ -52,7 +52,7 @@ function jsonp(params) {
 }
 function esc(s) { return (s === undefined || s === null) ? "" : String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 jsonp({ action: 'read', sheet: 'Macchine' }).then(function (j) {
-  TUTTE = (j.rows || []).sort(function (a, b) { return (a.Codice || "").localeCompare(b.Codice || ""); });
+  TUTTE = (j.rows || []).sort(function (a, b) { return String(a.Codice || "").localeCompare(String(b.Codice || "")); });
   render(TUTTE);
 }).catch(function () {
   document.getElementById("list").innerHTML = "<div class='s-empty'>Impossibile contattare il backend.</div>";
