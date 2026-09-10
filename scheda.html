@@ -45,7 +45,6 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 .b-mai{background:#e2e3e5;color:#383d41;}
 .scad-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:5px;}
 .scad-dt{font-size:.7rem;font-family:'IBM Plex Mono',monospace;color:var(--muted);}
-.scad-admin{margin-top:8px;display:flex;gap:6px;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 @media(max-width:600px){.g2,.g3{grid-template-columns:1fr;}}
@@ -65,15 +64,18 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 .s-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:32px 0;}
 .icard{background:#fff;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:10px;}
 .icard.nok{border-left:4px solid var(--danger);background:#fff8f8;}
+.icard.str{border-left:4px solid #fd7e14;}
 .icard-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
 .itipo{font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:600;padding:3px 8px;border-radius:3px;background:#fff3cd;color:#856404;}
-.itipo.str{background:#f8d7da;color:#721c24;}
+.itipo.str{background:#ffe4cc;color:#7a4200;}
 .idt{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--muted);}
 .imn{font-size:.78rem;color:var(--muted);}
 .idesc{font-size:.85rem;line-height:1.5;margin-bottom:8px;}
 .iiig{font-size:.72rem;font-family:'IBM Plex Mono',monospace;padding:3px 8px;border-radius:3px;display:inline-block;font-weight:600;}
 .iig-ok{background:#d4edda;color:#155724;}
 .iig-nok{background:#f8d7da;color:#721c24;}
+.imeta{display:flex;gap:16px;flex-wrap:wrap;font-size:.76rem;color:var(--muted);}
+.imeta b{color:#212529;font-weight:600;}
 .chem-list{display:flex;flex-direction:column;gap:8px;}
 .chem-item{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-size:.88rem;}
 .picto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;}
@@ -92,6 +94,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 .btnsm.primary{background:var(--admin);border-color:var(--admin);color:#fff;}
 .plan-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;flex-wrap:wrap;}
 .plan-row .pinfo{flex:1;min-width:200px;}
+.regnote{font-size:.74rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-top:10px;}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:400;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal{background:#fff;border:1px solid var(--border);border-radius:8px;padding:30px;max-width:420px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.12);}
@@ -132,13 +135,18 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 <div class="sec admin-sec" id="admin-anagrafica" style="display:none;">
 <div class="sec-h">Modifica dati macchina</div>
 <div class="sec-b">
+<div class="field" style="margin-bottom:12px;max-width:260px;"><label>Categoria</label>
+<select id="a-Categoria" onchange="renderAdminAnagrafica()">
+<option value="Imbottigliamento">Imbottigliamento</option>
+<option value="Carrelli elevatori">Carrelli elevatori</option>
+</select></div>
 <div class="g3" id="admin-fields" style="margin-bottom:12px;"></div>
-<div class="field" style="margin-bottom:12px;"><label>Link manuale (Drive)</label><input type="text" id="a-link"></div>
+<div class="field" id="admin-link-wrap" style="margin-bottom:12px;"><label>Link manuale (Drive)</label><input type="text" id="a-link"></div>
 <button class="btnsm primary" onclick="salvaAnagrafica()">Salva dati macchina</button>
 </div>
 </div>
 
-<div class="sec">
+<div class="sec" id="sec-chem">
 <div class="sec-h">Prodotti chimici utilizzati</div>
 <div class="sec-b" id="chem-view"></div>
 </div>
@@ -147,10 +155,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 <div class="sec-b">
 <div class="field" style="margin-bottom:12px;"><label>Un prodotto per riga (es. Grasso alimentare NSF H1)</label><textarea id="a-chem"></textarea></div>
 <button class="btnsm primary" onclick="salvaChimici()">Salva prodotti chimici</button>
-</div>
-</div>
+</div></div>
 
-<div class="sec">
+<div class="sec" id="sec-picto">
 <div class="sec-h">Pittogrammi rischio e DPI richiesti</div>
 <div class="sec-b">
 <div style="margin-bottom:14px;"><div class="tlabel">DPI obbligatori</div><div class="picto-grid" id="picto-dpi-view"></div></div>
@@ -167,12 +174,15 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </div>
 
 <div class="sec">
-<div class="sec-h">Stato manutenzioni programmate</div>
-<div class="sec-b"><div class="scad-grid" id="scad-grid"><div class="s-empty">Caricamento...</div></div></div>
+<div class="sec-h" id="sec-scad-h">Stato manutenzioni programmate</div>
+<div class="sec-b">
+<div class="scad-grid" id="scad-grid"><div class="s-empty">Caricamento...</div></div>
+<div class="regnote" id="regnote" style="display:none;">Registro digitale degli interventi tenuto su questo sistema — assolve l'obbligo di registrazione delle verifiche (D.Lgs. 81/08).</div>
+</div>
 </div>
 
 <div class="sec admin-sec" id="admin-piano" style="display:none;">
-<div class="sec-h">Modifica piano di manutenzione</div>
+<div class="sec-h" id="admin-piano-h">Modifica piano di manutenzione</div>
 <div class="sec-b">
 <div id="piano-list" style="margin-bottom:16px;"></div>
 <div class="tlabel">+ Aggiungi voce al piano</div>
@@ -185,7 +195,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </div>
 </div>
 
-<div class="sec">
+<div class="sec" id="sec-int-imbott">
 <div class="sec-h">Registra nuovo intervento</div>
 <div class="sec-b">
 <div class="tlabel">Cosa hai fatto</div>
@@ -210,6 +220,40 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </div>
 </div>
 
+<div class="sec" id="sec-int-carrelli" style="display:none;">
+<div class="sec-h">Registra controllo / intervento</div>
+<div class="sec-b">
+<div class="tlabel">Che controllo/intervento è stato eseguito</div>
+<div class="field" style="margin-bottom:14px;">
+<select id="intc-piano" onchange="setPianoCarrelli(this.value)">
+<option value="">— Seleziona una voce dal piano di verifiche —</option>
+</select>
+</div>
+<div class="g2" style="margin-bottom:14px">
+<div class="field"><label>Data intervento</label><input type="date" id="intc-data"></div>
+<div class="field"><label>Ditta esterna esecutrice</label><input type="text" id="intc-ditta" placeholder="es. Solleva Service Srl" oninput="aggInfoCarrelli()"></div>
+</div>
+<div class="g2" style="margin-bottom:14px">
+<div class="field"><label>Esito</label>
+<select id="intc-esito" onchange="aggInfoCarrelli()">
+<option value="">— Seleziona esito —</option>
+<option value="Positivo">Positivo</option>
+<option value="Positivo con prescrizioni">Positivo con prescrizioni</option>
+<option value="Negativo">Negativo</option>
+</select></div>
+<div class="field"><label>Rif. verbale / report ditta</label><input type="text" id="intc-verbale" placeholder="n. verbale o link al documento"></div>
+</div>
+<div class="field" style="margin-bottom:14px">
+<label>Note</label>
+<textarea id="intc-desc" placeholder="Prescrizioni, esito, osservazioni..." oninput="aggInfoCarrelli()"></textarea>
+</div>
+<div class="field" style="max-width:320px;">
+<label>Asseverato da (operatore interno)</label>
+<input type="text" id="intc-asseverato" placeholder="Nome e cognome" oninput="aggInfoCarrelli()">
+</div>
+</div>
+</div>
+
 <div class="sec">
 <div class="sec-h">Storico interventi</div>
 <div class="sec-b" id="storico"><div class="s-empty">Caricamento storico...</div></div>
@@ -227,6 +271,8 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 <div class="field"><label>Codice</label><input type="text" id="nf-codice"></div>
 <div class="field"><label>Nome macchina</label><input type="text" id="nf-nome"></div>
 </div>
+<div class="field" style="margin-bottom:10px;max-width:420px;margin-left:auto;margin-right:auto;"><label>Categoria</label>
+<select id="nf-categoria"><option value="Imbottigliamento">Imbottigliamento</option><option value="Carrelli elevatori">Carrelli elevatori</option></select></div>
 <button class="btnsm primary" onclick="creaMacchina()">+ Crea scheda macchina</button>
 </div>
 </div></div>
@@ -306,6 +352,9 @@ var MAC = new URLSearchParams(location.search).get('m');
 var macchina = null, piano = [], storico = [], tipo = "", ig = "";
 var isAdmin = false;
 
+function catOf(m){ return (m && m.Categoria === "Carrelli elevatori") ? "Carrelli elevatori" : "Imbottigliamento"; }
+function isCarrello(){ return catOf(macchina) === "Carrelli elevatori"; }
+
 /* ---- JSONP / POST, stesso pattern del Portale QSE ---- */
 function jsonp(params) {
   return new Promise(function (resolve, reject) {
@@ -339,6 +388,7 @@ window.onload = function () {
   updateAdminUI();
   if (!MAC) { window.location.href = "index.html"; return; }
   document.getElementById("int-data").valueAsDate = new Date();
+  document.getElementById("intc-data").valueAsDate = new Date();
   caricaTutto();
 };
 
@@ -353,6 +403,7 @@ function caricaTutto() {
 
       if (!macchina) { renderNotFound(); return; }
       document.getElementById("main-content").style.display = "block";
+      applyCategoriaVisibilita();
       renderHeader();
       renderMcard();
       renderManualeLink();
@@ -371,6 +422,18 @@ function caricaTutto() {
     });
 }
 
+function applyCategoriaVisibilita() {
+  var carrello = isCarrello();
+  document.getElementById("sec-chem").style.display = carrello ? "none" : "block";
+  document.getElementById("sec-picto").style.display = carrello ? "none" : "block";
+  document.getElementById("sec-int-imbott").style.display = carrello ? "none" : "block";
+  document.getElementById("sec-int-carrelli").style.display = carrello ? "block" : "none";
+  document.getElementById("regnote").style.display = carrello ? "block" : "none";
+  document.getElementById("sec-scad-h").textContent = carrello ? "Stato controlli e verifiche periodiche" : "Stato manutenzioni programmate";
+  document.getElementById("admin-piano-h").textContent = carrello ? "Modifica piano di verifiche" : "Modifica piano di manutenzione";
+  document.getElementById("admin-link-wrap").style.display = carrello ? "none" : "flex";
+}
+
 function renderNotFound() {
   document.getElementById("notfound-content").style.display = "block";
   document.getElementById("notfound-code").textContent = "Nessuna scheda trovata per il codice \"" + MAC + "\".";
@@ -382,8 +445,9 @@ function renderNotFound() {
 function creaMacchina() {
   var cod = document.getElementById("nf-codice").value.trim();
   var nome = document.getElementById("nf-nome").value.trim();
+  var cat = document.getElementById("nf-categoria").value;
   if (!cod || !nome) { modal("", "Campi mancanti", "Inserisci codice e nome macchina."); return; }
-  post('write', 'Macchine', { Codice: cod, Nome: nome }).then(function () {
+  post('write', 'Macchine', { Codice: cod, Nome: nome, Categoria: cat }).then(function () {
     window.location.href = "scheda.html?m=" + encodeURIComponent(cod);
   });
 }
@@ -397,17 +461,20 @@ function renderHeader() {
 }
 
 function renderMcard() {
-  var fields = [["Tipo", macchina.Nome], ["Marca", macchina.Marca], ["Modello", macchina.Modello], ["Matricola", macchina.Matricola], ["Anno", macchina.Anno], ["Linea", macchina.Linea], ["CE", macchina.CE]];
+  var fields = isCarrello()
+    ? [["Utilizzatore", macchina.Utilizzatore], ["Marca", macchina.Marca], ["Modello", macchina.Modello], ["Matricola", macchina.Matricola], ["Anno", macchina.Anno], ["Localizzazione", macchina.Localizzazione], ["Stato", macchina.Stato], ["Scadenza contratto", macchina["Scadenza Contratto"]]]
+    : [["Tipo", macchina.Nome], ["Marca", macchina.Marca], ["Modello", macchina.Modello], ["Matricola", macchina.Matricola], ["Anno", macchina.Anno], ["Linea", macchina.Linea], ["CE", macchina.CE]];
   document.getElementById("mcard").innerHTML = fields.map(function (f) {
     return "<div><div class='mf-l'>" + f[0] + "</div><div class='mf-v'>" + (f[1] || "—") + "</div></div>";
   }).join("");
 }
 function renderManualeLink() {
   var el = document.getElementById("manuale-link");
-  el.innerHTML = macchina["Link Manuale"] ? "<a class='btnsm' target='_blank' href='" + esc(macchina["Link Manuale"]) + "'>Apri manuale macchina</a>" : "";
+  el.innerHTML = (!isCarrello() && macchina["Link Manuale"]) ? "<a class='btnsm' target='_blank' href='" + esc(macchina["Link Manuale"]) + "'>Apri manuale macchina</a>" : "";
 }
 
 function renderChimici() {
+  if (isCarrello()) return;
   var raw = (macchina["Prodotti Chimici"] || "").trim();
   var el = document.getElementById("chem-view");
   if (!raw) { el.innerHTML = "<div class='s-empty'>Nessun prodotto chimico registrato.</div>"; return; }
@@ -423,6 +490,7 @@ function pittoGrid(codes, lib) {
   }).join("");
 }
 function renderPittogrammi() {
+  if (isCarrello()) return;
   document.getElementById("picto-dpi-view").innerHTML = pittoGrid(macchina["Pittogrammi DPI"], PITTO_DPI);
   document.getElementById("picto-risk-view").innerHTML = pittoGrid(macchina["Pittogrammi Rischio"], PITTO_RISK);
 }
@@ -442,26 +510,38 @@ function updateAdminUI() {
   ["admin-anagrafica", "admin-chem", "admin-picto", "admin-piano"].forEach(function (id) {
     document.getElementById(id).style.display = isAdmin ? "block" : "none";
   });
+  if (isAdmin && macchina) {
+    document.getElementById("admin-chem").style.display = isCarrello() ? "none" : "block";
+    document.getElementById("admin-picto").style.display = isCarrello() ? "none" : "block";
+  }
   var nfa = document.getElementById("notfound-admin");
   if (nfa) nfa.style.display = (isAdmin && !macchina) ? "block" : "none";
 }
 
 function renderAdminAnagrafica() {
-  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "Linea", "CE"];
+  var cat = catOf(macchina);
+  document.getElementById("a-Categoria").value = cat;
+  var fields = cat === "Carrelli elevatori"
+    ? ["Nome", "Utilizzatore", "Marca", "Modello", "Matricola", "Anno", "Localizzazione", "Stato", "Scadenza Contratto"]
+    : ["Nome", "Marca", "Modello", "Matricola", "Anno", "Linea", "CE"];
   document.getElementById("admin-fields").innerHTML = fields.map(function (f) {
-    return "<div class='field'><label>" + f + "</label><input type='text' id='a-" + f.replace(/\s/g, '') + "' value=\"" + esc(macchina[f] || "") + "\"></div>";
+    return "<div class='field'><label>" + f + "</label><input type='text' id='a-" + f.replace(/\s/g, '') + "' value=\"" + esc((macchina && macchina[f]) || "") + "\"></div>";
   }).join("");
-  document.getElementById("a-link").value = macchina["Link Manuale"] || "";
+  document.getElementById("a-link").value = (macchina && macchina["Link Manuale"]) || "";
 }
 function salvaAnagrafica() {
-  var fields = ["Nome", "Marca", "Modello", "Matricola", "Anno", "Linea", "CE"];
-  var data = { ID: macchina.ID };
+  var cat = document.getElementById("a-Categoria").value;
+  var fields = cat === "Carrelli elevatori"
+    ? ["Nome", "Utilizzatore", "Marca", "Modello", "Matricola", "Anno", "Localizzazione", "Stato", "Scadenza Contratto"]
+    : ["Nome", "Marca", "Modello", "Matricola", "Anno", "Linea", "CE"];
+  var data = { ID: macchina.ID, Categoria: cat };
   fields.forEach(function (f) { data[f] = document.getElementById("a-" + f.replace(/\s/g, '')).value; });
   data["Link Manuale"] = document.getElementById("a-link").value;
   post('update', 'Macchine', data).then(function () { modal("", "Salvato", "Dati macchina aggiornati."); caricaTutto(); });
 }
 
 function renderAdminChem() {
+  if (isCarrello()) return;
   document.getElementById("a-chem").value = macchina["Prodotti Chimici"] || "";
 }
 function salvaChimici() {
@@ -470,6 +550,7 @@ function salvaChimici() {
 }
 
 function renderAdminPicto() {
+  if (isCarrello()) return;
   var selDpi = (macchina["Pittogrammi DPI"] || "").split(",").map(function (s) { return s.trim(); });
   var selRisk = (macchina["Pittogrammi Rischio"] || "").split(",").map(function (s) { return s.trim(); });
   document.getElementById("picto-dpi-pick").innerHTML = pickGrid(PITTO_DPI, selDpi, "dpi");
@@ -498,6 +579,10 @@ function renderPianoAdmin() {
       "<button class='btnsm danger' onclick=\"eliminaPiano('" + p.ID + "')\">Elimina</button></div>";
   }).join("");
 }
+function eliminaPiano(id) {
+  if (!confirm("Eliminare questa voce dal piano di manutenzione?")) return;
+  post('delete', 'Piano Manutenzione', { ID: id }).then(function () { caricaTutto(); });
+}
 function aggiungiPiano() {
   var t = document.getElementById("p-tipo").value.trim();
   var m = document.getElementById("p-mesi").value.trim();
@@ -509,23 +594,19 @@ function aggiungiPiano() {
       caricaTutto();
     });
 }
-function eliminaPiano(id) {
-  if (!confirm("Eliminare questa voce dal piano di manutenzione?")) return;
-  post('delete', 'Piano Manutenzione', { ID: id }).then(function () { caricaTutto(); });
-}
 
-/* ---- Registra intervento ---- */
+/* ---- Registra intervento (Imbottigliamento) ---- */
 var pianoIdSelezionato = "";
 function renderTipoBtns() {
-  var sel = document.getElementById("int-piano");
   var opts = "<option value=\"\">— Seleziona una voce dal piano di manutenzione —</option>";
   opts += piano.map(function (p) {
     return "<option value=\"" + esc(p.ID) + "\">" + esc(p.Tipo) + " — " + esc(p.Descrizione).slice(0, 90) + "</option>";
   }).join("");
   opts += "<option value=\"STR\">Straordinaria (intervento non pianificato)</option>";
-  sel.innerHTML = opts;
-  pianoIdSelezionato = "";
-  tipo = "";
+  document.getElementById("int-piano").innerHTML = opts;
+  document.getElementById("intc-piano").innerHTML = opts.replace("piano di manutenzione", "piano di verifiche");
+  pianoIdSelezionato = ""; tipo = "";
+  pianoIdSelezionatoC = ""; tipoC = "";
 }
 function setPiano(val) {
   pianoIdSelezionato = val;
@@ -543,11 +624,13 @@ function setIg(v) {
   aggInfo();
 }
 function aggInfo() {
+  if (isCarrello()) return;
   var ok = tipo && ig && document.getElementById("int-manut").value.trim() && document.getElementById("int-desc").value.trim();
   document.getElementById("subbar").style.display = "flex";
   document.getElementById("subinfo").textContent = ok ? "Pronto — " + tipo + " | Igienica: " + ig : "Compila tutti i campi per salvare";
 }
 function salvaIntervento() {
+  if (isCarrello()) { salvaInterventoCarrelli(); return; }
   var mn = document.getElementById("int-manut").value.trim();
   var ds = document.getElementById("int-desc").value.trim();
   var dt = document.getElementById("int-data").value;
@@ -573,10 +656,59 @@ function salvaIntervento() {
     .catch(function () { btn.disabled = false; btn.textContent = "Salva intervento"; modal("", "Errore di rete", "Verifica la connessione e riprova."); });
 }
 
+/* ---- Registra intervento (Carrelli elevatori) ---- */
+var pianoIdSelezionatoC = "", tipoC = "";
+function setPianoCarrelli(val) {
+  pianoIdSelezionatoC = val;
+  if (val === "STR") { tipoC = "Straordinaria"; }
+  else if (val) {
+    var p = piano.filter(function (x) { return x.ID === val; })[0];
+    tipoC = p ? p.Tipo : "";
+  } else { tipoC = ""; }
+  aggInfoCarrelli();
+}
+function aggInfoCarrelli() {
+  if (!isCarrello()) return;
+  var ok = tipoC && document.getElementById("intc-ditta").value.trim() && document.getElementById("intc-esito").value && document.getElementById("intc-asseverato").value.trim();
+  document.getElementById("subbar").style.display = "flex";
+  document.getElementById("subinfo").textContent = ok ? "Pronto — " + tipoC : "Compila tutti i campi per salvare";
+}
+function salvaInterventoCarrelli() {
+  var ditta = document.getElementById("intc-ditta").value.trim();
+  var esito = document.getElementById("intc-esito").value;
+  var verbale = document.getElementById("intc-verbale").value.trim();
+  var ds = document.getElementById("intc-desc").value.trim();
+  var asseverato = document.getElementById("intc-asseverato").value.trim();
+  var dt = document.getElementById("intc-data").value;
+  if (!tipoC) { modal("", "Tipo mancante", "Seleziona il tipo di controllo/intervento."); return; }
+  if (!ditta) { modal("", "Campo mancante", "Inserisci la ditta esterna esecutrice."); return; }
+  if (!esito) { modal("", "Campo mancante", "Indica l'esito del controllo."); return; }
+  if (!asseverato) { modal("", "Campo mancante", "Inserisci chi asservera l'intervento."); return; }
+  var btn = document.getElementById("btn-salva");
+  btn.disabled = true; btn.textContent = "Salvataggio...";
+  post('write', 'Interventi Manutenzione', {
+    "Codice Macchina": MAC, Data: dt, Tipo: tipoC, "Ditta Esterna": ditta, Esito: esito,
+    "Rif Verbale": verbale, Descrizione: ds, "Asseverato Da": asseverato,
+    "Piano ID": pianoIdSelezionatoC === "STR" ? "" : pianoIdSelezionatoC
+  }).then(function (j) {
+    btn.disabled = false; btn.textContent = "Salva intervento";
+    tipoC = ""; pianoIdSelezionatoC = "";
+    document.getElementById("intc-piano").value = "";
+    document.getElementById("intc-ditta").value = "";
+    document.getElementById("intc-esito").value = "";
+    document.getElementById("intc-verbale").value = "";
+    document.getElementById("intc-desc").value = "";
+    document.getElementById("intc-asseverato").value = "";
+    document.getElementById("intc-data").valueAsDate = new Date();
+    modal("", "Intervento salvato!", "Salvato correttamente sul foglio manutenzioni.");
+    caricaTutto();
+  }).catch(function () { btn.disabled = false; btn.textContent = "Salva intervento"; modal("", "Errore di rete", "Verifica la connessione e riprova."); });
+}
+
 /* ---- Stato manutenzioni + storico ---- */
 function renderScad() {
   var g = document.getElementById("scad-grid");
-  if (!piano.length) { g.innerHTML = "<div class='s-empty'>Nessun piano di manutenzione definito" + (isAdmin ? ". Usa la sezione amministratore qui sotto per aggiungerne uno." : ".") + "</div>"; return; }
+  if (!piano.length) { g.innerHTML = "<div class='s-empty'>Nessun piano definito" + (isAdmin ? ". Usa la sezione amministratore qui sotto per aggiungerne uno." : ".") + "</div>"; return; }
   g.innerHTML = piano.map(function (m) {
     var ultimi = storico.filter(function (i) { return i["Piano ID"] === m.ID; })
       .sort(function (a, b) { return new Date(b.Data) - new Date(a.Data); });
@@ -601,6 +733,19 @@ function renderScad() {
 function renderStorico() {
   var c = document.getElementById("storico");
   if (!storico.length) { c.innerHTML = "<div class='s-empty'>Nessun intervento registrato.</div>"; return; }
+  if (isCarrello()) {
+    c.innerHTML = storico.map(function (i) {
+      return "<div class='icard" + (i.Tipo === "Straordinaria" ? " str" : "") + "'>" +
+        "<div class='icard-top'><span class='itipo" + (i.Tipo === "Straordinaria" ? " str" : "") + "'>" + esc(i.Tipo) + "</span>" +
+        "<span class='idt'> " + esc(formatData(i.Data)) + "</span></div>" +
+        "<div class='idesc'>" + esc(i.Descrizione || "—") + "</div>" +
+        "<div class='imeta'><span>Ditta: <b>" + esc(i["Ditta Esterna"]) + "</b></span><span>Esito: <b>" + esc(i.Esito) + "</b></span>" +
+        (i["Rif Verbale"] ? "<span>Verbale: <b>" + esc(i["Rif Verbale"]) + "</b></span>" : "") +
+        "<span>Asseverato da: <b>" + esc(i["Asseverato Da"]) + "</b></span></div>" +
+        "</div>";
+    }).join("");
+    return;
+  }
   c.innerHTML = storico.map(function (i) {
     return "<div class='icard " + (i["Idoneita Igienica"] === "NOK" ? "nok" : "") + "'>" +
       "<div class='icard-top'>" +
