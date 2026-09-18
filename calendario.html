@@ -102,13 +102,18 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 
 @media print{
   *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;}
-  .app-header,.hlinks,.adminbtn,.nav button,.viewtoggle,.printbtn{display:none!important;}
+  .app-header,.hlinks,.adminbtn,.nav button,.viewtoggle,.printbtn,.docctrl-edit{display:none!important;}
   body{padding:0;} .main{max-width:100%;padding:0;}
   .toolbar{margin-bottom:8px;} .curr{font-size:1.2rem;}
   .year-wrap{overflow:visible!important;} .year-table{min-width:0!important;font-size:.7rem;}
   .year-table th,.year-table td{padding:5px 4px;}
   .cal-cell{min-height:70px;}
   .day-summary,.year-mark,.ev-badge,.legend .sw{box-shadow:none;}
+.docctrl{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:14px;padding-bottom:10px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.docctrl b{color:#212529;}
+.docctrl input{font-family:inherit;font-size:.72rem;padding:4px 7px;border:1px solid var(--border);border-radius:3px;width:70px;}
+.docctrl input#dc-data{width:110px;}
+.dc-save{background:var(--admin);color:#fff;border:none;border-radius:4px;padding:4px 10px;font-size:.7rem;font-weight:600;cursor:pointer;}
   @page{size:landscape;margin:10mm;}
 }
 </style>
@@ -117,11 +122,18 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;}
 <header class="app-header">
 <div class="htitle">Calendario Manutenzioni</div>
 <div class="hright">
-<div class="hlinks"><a href="index.html">Tutte le macchine</a></div>
+<div class="hlinks"><a href="https://qsa-privi.github.io/manutenzione-macchine/index.html">Tutte le macchine</a></div>
 <button class="adminbtn" id="admin-toggle" onclick="toggleAdmin()">Amministratore</button>
 </div>
 </header>
 <div class="main">
+<div class="docctrl" id="docctrl">
+<span id="docctrl-view"><b>Mod. 05-12.1</b> — Rev. — del —</span>
+<span class="docctrl-edit" id="docctrl-edit" style="display:none;">
+Rev. <input id="dc-rev" maxlength="8"> del <input id="dc-data" maxlength="12" placeholder="gg/mm/aaaa">
+<button class="dc-save" onclick="salvaDocControl()">Salva</button>
+</span>
+</div>
 <div class="toolbar">
 <div class="nav">
 <button onclick="prev()" id="btn-prev">&#9664;</button>
@@ -169,6 +181,7 @@ var macchine = [], piano = [], storico = [];
 var curDate = new Date();
 var view = "mese";
 var isAdmin = false;
+var DOC_CONTROL = { Rev: "00", Data: "09/09/2026" };
 var eventi = [];   // {data:Date, codice, nome, tipo, descrizione, pianoId, stato}
 var mai = [];      // {codice, nome, tipo, descrizione, freq}
 
@@ -210,8 +223,10 @@ isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
 updateAdminUI();
 
 function caricaDati() {
-  return Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')]).then(function (res) {
+  return Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione'), readSheet('DocControl')]).then(function (res) {
     macchine = res[0]; piano = res[1]; storico = res[2];
+    DOC_CONTROL = (res[3] || []).filter(function (r) { return String(r.ID) === 'calendario'; })[0] || { Rev: "00", Data: "09/09/2026" };
+    renderDocControl();
     calcolaEventi();
     render();
   }).catch(function (e) {
@@ -258,6 +273,22 @@ function calcolaEventi() {
   });
 }
 
+function renderDocControl() {
+  var rev = DOC_CONTROL.Rev || "—", dt = DOC_CONTROL.Data || "—";
+  document.getElementById("docctrl-view").innerHTML = "<b>Mod. 05-12.1</b> — Rev. " + esc(rev) + " del " + esc(dt);
+  document.getElementById("dc-rev").value = DOC_CONTROL.Rev || "";
+  document.getElementById("dc-data").value = DOC_CONTROL.Data || "";
+}
+function salvaDocControl() {
+  var rev = document.getElementById("dc-rev").value.trim();
+  var dt = document.getElementById("dc-data").value.trim();
+  if (!rev || !dt) { alert("Inserisci Rev. e Data."); return; }
+  post('update', 'DocControl', { ID: 'calendario', Rev: rev, Data: dt }).then(function () {
+    DOC_CONTROL = { ID: 'calendario', Rev: rev, Data: dt };
+    renderDocControl();
+  }).catch(function () { alert("Errore di rete, riprova."); });
+}
+
 /* ---- admin ---- */
 function toggleAdmin() {
   if (isAdmin) { isAdmin = false; sessionStorage.removeItem(ADMIN_KEY); }
@@ -276,6 +307,8 @@ function updateAdminUI() {
   b.className = "adminbtn" + (isAdmin ? " on" : "");
   b.textContent = isAdmin ? "Amministratore attivo" : "Amministratore";
   document.getElementById("vt-mai").style.display = isAdmin ? "" : "none";
+  document.getElementById("docctrl-view").style.display = isAdmin ? "none" : "inline";
+  document.getElementById("docctrl-edit").style.display = isAdmin ? "inline" : "none";
 }
 
 function setView(v) {
@@ -350,7 +383,7 @@ function openDay(y, m, d) {
   var META = { programmata: ["prog", "programmata"], imminente: ["imm", "in scadenza"], scaduta: ["scad", "scaduta"] };
   var body = evs.map(function (e) {
     var mt = META[e.stato] || META.programmata;
-    return "<a class='ev-row' href='scheda.html?m=" + encodeURIComponent(e.codice) + "'>" +
+    return "<a class='ev-row' href='https://qsa-privi.github.io/manutenzione-macchine/scheda.html?m=" + encodeURIComponent(e.codice) + "'>" +
       "<div class='ev-top'><span class='ev-cod'>" + esc(e.codice) + "</span>" +
       "<span class='ev-nome'>" + esc(e.nome) + "</span>" +
       "<span class='ev-badge " + mt[0] + "'>" + mt[1] + "</span></div>" +
@@ -379,7 +412,7 @@ function renderAnno() {
   MESI_IT.forEach(function (mn) { html += "<th>" + mn.slice(0, 3) + "</th>"; });
   html += "</tr></thead><tbody>";
   lista.forEach(function (r) {
-    html += "<tr><td class='rowlabel'><a href='scheda.html?m=" + encodeURIComponent(r.codice) + "'>" + esc(r.codice) + " — " + esc(r.nome) + "</a></td>" +
+    html += "<tr><td class='rowlabel'><a href='https://qsa-privi.github.io/manutenzione-macchine/scheda.html?m=" + encodeURIComponent(r.codice) + "'>" + esc(r.codice) + " — " + esc(r.nome) + "</a></td>" +
             "<td class='coldesc' title='" + esc(r.descrizione) + "'>" + esc(r.tipo) + " — " + esc(r.descrizione).slice(0, 40) + (r.descrizione.length > 40 ? "…" : "") + "</td>";
     for (var mm = 0; mm < 12; mm++) {
       var c = r.mesi[mm];
@@ -413,7 +446,7 @@ function renderMai() {
       "<div class='mc-tipo'>" + esc(m.tipo) + "</div>" +
       "<div class='mc-desc'>" + esc(m.descrizione) + "</div>" +
       "<div class='mc-actions'>" +
-      "<a class='mc-link' href='scheda.html?m=" + encodeURIComponent(m.codice) + "'>Apri scheda &rarr; registra il primo intervento</a>" +
+      "<a class='mc-link' href='https://qsa-privi.github.io/manutenzione-macchine/scheda.html?m=" + encodeURIComponent(m.codice) + "'>Apri scheda &rarr; registra il primo intervento</a>" +
       "<button class='mc-del' onclick=\"eliminaVocePiano('" + esc(m.id) + "','" + et + "')\">Non tracciare / elimina</button>" +
       "</div>" +
     "</div>";

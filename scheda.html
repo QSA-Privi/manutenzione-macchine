@@ -107,6 +107,12 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 .idx-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:6px;text-decoration:none;color:#212529;}
 .idx-item:hover{border-color:var(--accent);}
 .idx-badge{background:var(--accent);color:#000;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:4px 9px;border-radius:3px;}
+.docctrl{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:16px;padding-bottom:10px;border-bottom:1px dashed var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.docctrl b{color:#212529;}
+.docctrl input{font-family:inherit;font-size:.72rem;padding:4px 7px;border:1px solid var(--border);border-radius:3px;width:70px;}
+.docctrl input#dc-data{width:110px;}
+.docctrl .btnsm{padding:4px 10px;font-size:.7rem;}
+@media print{.docctrl-edit{display:none!important;}#docctrl-view{display:inline!important;}}
 @media print{.app-header,.subbar,.adminbtn,.hlinks,.btnsm{display:none!important;}body{padding-bottom:0;}}
 </style>
 </head>
@@ -124,6 +130,13 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </header>
 
 <div class="main" id="main-content" style="display:none;">
+<div class="docctrl" id="docctrl">
+<span id="docctrl-view"><b>Mod. 05-12</b> — Rev. — del —</span>
+<span class="docctrl-edit" id="docctrl-edit" style="display:none;">
+Rev. <input id="dc-rev" maxlength="8"> del <input id="dc-data" maxlength="12" placeholder="gg/mm/aaaa">
+<button class="btnsm primary" onclick="salvaDocControl()">Salva</button>
+</span>
+</div>
 <div class="sec">
 <div class="sec-h">Dati macchina</div>
 <div class="sec-b">
@@ -351,6 +364,7 @@ var PITTO_RISK = {
 var MAC = new URLSearchParams(location.search).get('m');
 var macchina = null, piano = [], storico = [], tipo = "", ig = "";
 var isAdmin = false;
+var DOC_CONTROL = { Rev: "00", Data: "09/09/2026" };
 
 function catOf(m){ return (m && m.Categoria === "Carrelli elevatori") ? "Carrelli elevatori" : "Imbottigliamento"; }
 function isCarrello(){ return catOf(macchina) === "Carrelli elevatori"; }
@@ -393,9 +407,11 @@ window.onload = function () {
 };
 
 function caricaTutto() {
-  Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')])
+  Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione'), readSheet('DocControl')])
     .then(function (res) {
-      var macchineAll = res[0], pianoAll = res[1], storicoAll = res[2];
+      var macchineAll = res[0], pianoAll = res[1], storicoAll = res[2], docControlAll = res[3] || [];
+      DOC_CONTROL = docControlAll.filter(function (r) { return String(r.ID) === 'scheda'; })[0] || { Rev: "00", Data: "09/09/2026" };
+      renderDocControl();
       macchina = macchineAll.filter(function (r) { return String(r.Codice) === MAC; })[0] || null;
       piano = pianoAll.filter(function (r) { return String(r['Codice Macchina']) === MAC; });
       storico = storicoAll.filter(function (r) { return String(r['Codice Macchina']) === MAC; })
@@ -420,6 +436,23 @@ function caricaTutto() {
     .catch(function (err) {
       modal("", "Errore di caricamento", "Impossibile contattare il backend: " + err.message);
     });
+}
+
+function renderDocControl() {
+  var rev = DOC_CONTROL.Rev || "—", dt = DOC_CONTROL.Data || "—";
+  document.getElementById("docctrl-view").innerHTML = "<b>Mod. 05-12</b> — Rev. " + esc(rev) + " del " + esc(dt);
+  document.getElementById("dc-rev").value = DOC_CONTROL.Rev || "";
+  document.getElementById("dc-data").value = DOC_CONTROL.Data || "";
+}
+function salvaDocControl() {
+  var rev = document.getElementById("dc-rev").value.trim();
+  var dt = document.getElementById("dc-data").value.trim();
+  if (!rev || !dt) { modal("", "Campi mancanti", "Inserisci Rev. e Data."); return; }
+  post('update', 'DocControl', { ID: 'scheda', Rev: rev, Data: dt }).then(function () {
+    DOC_CONTROL = { ID: 'scheda', Rev: rev, Data: dt };
+    renderDocControl();
+    modal("", "Salvato", "Rev. e data del Mod. 05-12 aggiornate.");
+  }).catch(function () { modal("", "Errore di rete", "Verifica la connessione e riprova."); });
 }
 
 function applyCategoriaVisibilita() {
@@ -510,6 +543,8 @@ function updateAdminUI() {
   ["admin-anagrafica", "admin-chem", "admin-picto", "admin-piano"].forEach(function (id) {
     document.getElementById(id).style.display = isAdmin ? "block" : "none";
   });
+  document.getElementById("docctrl-view").style.display = isAdmin ? "none" : "inline";
+  document.getElementById("docctrl-edit").style.display = isAdmin ? "inline" : "none";
   if (isAdmin && macchina) {
     document.getElementById("admin-chem").style.display = isCarrello() ? "none" : "block";
     document.getElementById("admin-picto").style.display = isCarrello() ? "none" : "block";
