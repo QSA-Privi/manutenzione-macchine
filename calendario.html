@@ -223,7 +223,7 @@ isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
 updateAdminUI();
 
 function caricaDati() {
-  return Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione'), readSheet('DocControl')]).then(function (res) {
+  return Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione'), readSheet('DocControl').catch(function () { return []; })]).then(function (res) {
     macchine = res[0]; piano = res[1]; storico = res[2];
     DOC_CONTROL = (res[3] || []).filter(function (r) { return String(r.ID) === 'calendario'; })[0] || { Rev: "00", Data: "09/09/2026" };
     renderDocControl();

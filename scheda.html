@@ -407,7 +407,7 @@ window.onload = function () {
 };
 
 function caricaTutto() {
-  Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione'), readSheet('DocControl')])
+  Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione'), readSheet('DocControl').catch(function () { return []; })])
     .then(function (res) {
       var macchineAll = res[0], pianoAll = res[1], storicoAll = res[2], docControlAll = res[3] || [];
       DOC_CONTROL = docControlAll.filter(function (r) { return String(r.ID) === 'scheda'; })[0] || { Rev: "00", Data: "09/09/2026" };
