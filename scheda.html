@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scheda macchine - Mod. 05-14</title>
+<title>Scheda macchine - Mod. 05-15</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--accent:#f5a623;--danger:#dc3545;--success:#28a745;--border:#dee2e6;--muted:#6c757d;--surface:#f8f9fa;--admin:#7c3aed;}
@@ -391,9 +391,9 @@ function creaMacchina() {
 function renderHeader() {
   document.getElementById("h-badge").textContent = macchina.Codice;
   document.getElementById("h-title").textContent = macchina.Codice + " — " + macchina.Nome;
-  var sub = ["Scheda macchine — Mod. 05-14", macchina.Marca, macchina.Modello, macchina.Matricola ? ("Matricola " + macchina.Matricola) : "", macchina.Linea ? ("Linea " + macchina.Linea) : ""].filter(Boolean).join(" — ");
+  var sub = ["Scheda macchine — Mod. 05-15", macchina.Marca, macchina.Modello, macchina.Matricola ? ("Matricola " + macchina.Matricola) : "", macchina.Linea ? ("Linea " + macchina.Linea) : ""].filter(Boolean).join(" — ");
   document.getElementById("h-sub").textContent = sub;
-  document.title = "Scheda macchine - Mod. 05-14 - " + macchina.Nome;
+  document.title = "Scheda macchine - Mod. 05-15 - " + macchina.Nome;
 }
 
 function renderMcard() {
@@ -410,7 +410,7 @@ function renderManualeLink() {
 function renderChimici() {
   var raw = (macchina["Prodotti Chimici"] || "").trim();
   var el = document.getElementById("chem-view");
-  if (!raw) { el.innerHTML = "<div class='s-empty'>Nessun prodotto chimico registrato.</div>"; return; }
+  if (!raw) { el.innerHTML = "<div class='s-empty'>Prodotti chimici approvati e registrati nel Mod. 00-05.</div>"; return; }
   var items = raw.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
   el.innerHTML = "<div class='chem-list'>" + items.map(function (i) { return "<div class='chem-item'> " + esc(i) + "</div>"; }).join("") + "</div>";
 }
