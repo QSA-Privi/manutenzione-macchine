@@ -346,9 +346,12 @@ function caricaTutto() {
   Promise.all([readSheet('Macchine'), readSheet('Piano Manutenzione'), readSheet('Interventi Manutenzione')])
     .then(function (res) {
       var macchineAll = res[0], pianoAll = res[1], storicoAll = res[2];
-      macchina = macchineAll.filter(function (r) { return r.Codice === MAC; })[0] || null;
-      piano = pianoAll.filter(function (r) { return r['Codice Macchina'] === MAC; });
-      storico = storicoAll.filter(function (r) { return r['Codice Macchina'] === MAC; })
+      // Confronto come testo: i carrelli hanno codici numerici (117, 278...) che il foglio
+      // restituisce come numeri, mentre ?m=117 arriva come testo "117".
+      function stessoCodice(v) { return String(v == null ? '' : v).trim() === String(MAC).trim(); }
+      macchina = macchineAll.filter(function (r) { return stessoCodice(r.Codice); })[0] || null;
+      piano = pianoAll.filter(function (r) { return stessoCodice(r['Codice Macchina']); });
+      storico = storicoAll.filter(function (r) { return stessoCodice(r['Codice Macchina']); })
         .sort(function (a, b) { return new Date(b.Data) - new Date(a.Data); });
 
       if (!macchina) { renderNotFound(); return; }
