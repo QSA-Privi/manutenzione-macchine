@@ -104,6 +104,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 .idx-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:6px;text-decoration:none;color:#212529;}
 .idx-item:hover{border-color:var(--accent);}
 .idx-badge{background:var(--accent);color:#000;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:4px 9px;border-radius:3px;}
+.coll-h{cursor:pointer;user-select:none;}
+.coll-btn{background:#fff;border:1px solid var(--border);border-radius:4px;width:28px;height:28px;font-size:1.1rem;font-weight:600;line-height:1;cursor:pointer;color:var(--muted);flex-shrink:0;}
+.coll-btn:hover{border-color:var(--accent);color:#212529;}
 @media print{.app-header,.subbar,.adminbtn,.hlinks,.btnsm{display:none!important;}body{padding-bottom:0;}}
 </style>
 </head>
@@ -114,7 +117,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 <div><div class="htitle" id="h-title">Caricamento...</div><div class="hsub" id="h-sub"></div></div>
 </div>
 <div style="display:flex;align-items:center;gap:14px;">
-<div class="hlinks"><a href="index.html">Tutte le macchine</a><a href="calendario.html">Calendario</a></div>
+<div class="hlinks"><a href="index.html" id="lnk-index">Tutte le macchine</a><a href="calendario.html" id="lnk-cal">Calendario</a></div>
 <button class="adminbtn" id="admin-toggle" onclick="toggleAdmin()">Amministratore</button>
 <div class="htime" id="live-clock">--:--</div>
 </div>
@@ -166,9 +169,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </div>
 </div>
 
-<div class="sec">
-<div class="sec-h">Stato manutenzioni programmate</div>
-<div class="sec-b"><div class="scad-grid" id="scad-grid"><div class="s-empty">Caricamento...</div></div></div>
+<div class="sec" id="sec-scad">
+<div class="sec-h coll-h" onclick="toggleScad()"><span>Stato manutenzioni programmate</span><button class="coll-btn" id="scad-btn" type="button" title="Apri / chiudi">+</button></div>
+<div class="sec-b" id="scad-body" style="display:none;"><div class="scad-grid" id="scad-grid"><div class="s-empty">Caricamento...</div></div></div>
 </div>
 
 <div class="sec admin-sec" id="admin-piano" style="display:none;">
@@ -213,6 +216,16 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 <div class="sec">
 <div class="sec-h">Storico interventi</div>
 <div class="sec-b" id="storico"><div class="s-empty">Caricamento storico...</div></div>
+</div>
+</div>
+
+<div class="main" id="picker-content" style="display:none;">
+<div class="sec">
+<div class="sec-h">Scegli la macchina</div>
+<div class="sec-b">
+<div class="field" style="margin-bottom:14px;"><input type="text" id="pick-search" placeholder="Cerca macchina o codice..." oninput="filtraPicker()"></div>
+<div class="idx-list" id="pick-list"><div class="s-empty">Caricamento...</div></div>
+</div>
 </div>
 </div>
 
@@ -302,6 +315,9 @@ var PITTO_RISK = {
   W089:{f:"pittogrammi/W089.png",l:"Organi meccanici in movimento"}
 };
 
+// Aperta come file dal PC (es. copia nella cartella Qualità): immagini e link
+// puntano al sito pubblicato, perché accanto al file non ci sono index/calendario/pittogrammi.
+var BASE = location.protocol === "file:" ? "https://qsa-privi.github.io/manutenzione-macchine/" : "";
 var MAC = new URLSearchParams(location.search).get('m');
 var macchina = null, piano = [], storico = [], tipo = "", ig = "";
 var isAdmin = false;
@@ -337,7 +353,9 @@ window.onload = function () {
   }, 1000);
   isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
   updateAdminUI();
-  if (!MAC) { window.location.href = "index.html"; return; }
+  document.getElementById("lnk-index").href = BASE + "index.html";
+  document.getElementById("lnk-cal").href = BASE + "calendario.html";
+  if (!MAC) { mostraPicker(); return; }
   document.getElementById("int-data").valueAsDate = new Date();
   caricaTutto();
 };
@@ -374,6 +392,38 @@ function caricaTutto() {
     });
 }
 
+/* ---- Nessun ?m= : elenco macchine nella pagina stessa ---- */
+var PICK_ALL = [];
+function mostraPicker() {
+  document.getElementById("picker-content").style.display = "block";
+  document.getElementById("h-badge").textContent = "05-15";
+  document.getElementById("h-title").textContent = "Scheda macchine";
+  document.getElementById("h-sub").textContent = "Scheda macchine — Mod. 05-15";
+  readSheet('Macchine').then(function (rows) {
+    PICK_ALL = rows.filter(function (r) { return r.Codice !== "" && r.Codice != null; })
+      .sort(function (a, b) {
+        var ca = a.Linea === "Carrelli" ? 1 : 0, cb = b.Linea === "Carrelli" ? 1 : 0;
+        return (ca - cb) || String(a.Codice).localeCompare(String(b.Codice), "it", { numeric: true });
+      });
+    renderPicker(PICK_ALL);
+  }).catch(function (err) {
+    document.getElementById("pick-list").innerHTML = "<div class='s-empty'>Impossibile contattare il backend: " + esc(err.message) + "</div>";
+  });
+}
+function renderPicker(items) {
+  var el = document.getElementById("pick-list");
+  if (!items.length) { el.innerHTML = "<div class='s-empty'>Nessuna macchina trovata.</div>"; return; }
+  el.innerHTML = items.map(function (m) {
+    return "<a class='idx-item' href='?m=" + encodeURIComponent(m.Codice) + "'>" +
+      "<div class='idx-badge'>" + esc(m.Codice) + "</div>" +
+      "<div><div style='font-weight:500;font-size:.9rem;'>" + esc(m.Nome) + "</div><div style='font-size:.75rem;color:var(--muted);'>" + esc(m.Linea ? ("Linea " + m.Linea) : "") + "</div></div></a>";
+  }).join("");
+}
+function filtraPicker() {
+  var q = document.getElementById("pick-search").value.toLowerCase();
+  renderPicker(PICK_ALL.filter(function (m) { return (m.Codice + " " + m.Nome).toLowerCase().indexOf(q) !== -1; }));
+}
+
 function renderNotFound() {
   document.getElementById("notfound-content").style.display = "block";
   document.getElementById("notfound-code").textContent = "Nessuna scheda trovata per il codice \"" + MAC + "\".";
@@ -387,7 +437,7 @@ function creaMacchina() {
   var nome = document.getElementById("nf-nome").value.trim();
   if (!cod || !nome) { modal("", "Campi mancanti", "Inserisci codice e nome macchina."); return; }
   post('write', 'Macchine', { Codice: cod, Nome: nome }).then(function () {
-    window.location.href = "scheda.html?m=" + encodeURIComponent(cod);
+    window.location.href = "?m=" + encodeURIComponent(cod);
   });
 }
 
@@ -422,7 +472,7 @@ function pittoGrid(codes, lib) {
   var arr = (codes || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
   if (!arr.length) return "<div class='s-empty' style='padding:10px 0;'>Nessuno</div>";
   return arr.filter(function (c) { return lib[c]; }).map(function (c) {
-    return "<div class='picto'><img src='" + lib[c].f + "'><div>" + lib[c].l + "</div></div>";
+    return "<div class='picto'><img src='" + BASE + lib[c].f + "'><div>" + lib[c].l + "</div></div>";
   }).join("");
 }
 function renderPittogrammi() {
@@ -482,7 +532,7 @@ function pickGrid(lib, sel, group) {
   return Object.keys(lib).map(function (c) {
     var on = sel.indexOf(c) !== -1;
     return "<div class='picto-pick" + (on ? " sel" : "") + "' data-group='" + group + "' data-code='" + c + "' onclick='togglePicto(this)'>" +
-      "<div class='picto'><img src='" + lib[c].f + "'><div>" + lib[c].l + "</div></div></div>";
+      "<div class='picto'><img src='" + BASE + lib[c].f + "'><div>" + lib[c].l + "</div></div></div>";
   }).join("");
 }
 function togglePicto(el) { el.classList.toggle("sel"); }
@@ -577,6 +627,12 @@ function salvaIntervento() {
 }
 
 /* ---- Stato manutenzioni + storico ---- */
+function toggleScad() {
+  var b = document.getElementById("scad-body");
+  var aperto = b.style.display === "none";
+  b.style.display = aperto ? "block" : "none";
+  document.getElementById("scad-btn").textContent = aperto ? "−" : "+";
+}
 function renderScad() {
   var g = document.getElementById("scad-grid");
   if (!piano.length) { g.innerHTML = "<div class='s-empty'>Nessun piano di manutenzione definito" + (isAdmin ? ". Usa la sezione amministratore qui sotto per aggiungerne uno." : ".") + "</div>"; return; }
@@ -598,8 +654,7 @@ function renderScad() {
     }
     return "<div class='scad " + cc + "'><div class='scad-top'><span class='scad-freq'>Ogni " + mesi + " mesi</span><span class='badge " + bc + "'>" + badge + "</span></div>" +
       "<div class='scad-desc'><b>" + esc(m.Tipo) + "</b> — " + esc(m.Descrizione) + "</div><div class='scad-dt'>" + di + "</div></div>";
-  }).join("");
-}
+  }).join("");}
 
 function renderStorico() {
   var c = document.getElementById("storico");
