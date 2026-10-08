@@ -62,6 +62,10 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 .igbtn{flex:1;padding:12px;border:2px solid var(--border);border-radius:4px;background:#fff;color:var(--muted);font-size:.88rem;font-weight:600;cursor:pointer;text-align:center;}
 .igbtn.ok{background:#d4edda;border-color:var(--success);color:#155724;}
 .igbtn.nok{background:#f8d7da;border-color:var(--danger);color:#721c24;}
+.igbtn.nn{background:#e9ecef;border-color:#6c757d;color:#343a40;}
+.iig-nn{background:#e9ecef;color:#495057;}
+.igwrap.sm{gap:8px;}
+.igbtn.sm{flex:0 0 auto;min-width:96px;padding:6px 14px;font-size:.78rem;border-width:1.5px;}
 .s-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:32px 0;}
 .icard{background:#fff;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:10px;}
 .icard.nok{border-left:4px solid var(--danger);background:#fff8f8;}
@@ -107,7 +111,14 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 .coll-h{cursor:pointer;user-select:none;}
 .coll-btn{background:#fff;border:1px solid var(--border);border-radius:4px;width:28px;height:28px;font-size:1.1rem;font-weight:600;line-height:1;cursor:pointer;color:var(--muted);flex-shrink:0;}
 .coll-btn:hover{border-color:var(--accent);color:#212529;}
-@media print{.app-header,.subbar,.adminbtn,.hlinks,.btnsm{display:none!important;}body{padding-bottom:0;}}
+/* Stampa senza data: con @page margin:0 il browser non stampa data/titolo/indirizzo.
+   I margini li ricrea la tabella .pg (thead/tfoot vuote ripetute su ogni pagina). */
+table.pg{width:100%;border-collapse:collapse;}
+table.pg>thead>tr>td,table.pg>tfoot>tr>td,table.pg>tbody>tr>td.pg-c{padding:0;border:0;}
+@page{margin:0;}
+@media print{.app-header,.subbar,.adminbtn,.hlinks,.btnsm{display:none!important;}body{padding-bottom:0;}
+table.pg>thead>tr>td,table.pg>tfoot>tr>td{height:12mm;}
+table.pg>tbody>tr>td.pg-c{padding:0 12mm;}}
 </style>
 </head>
 <body>
@@ -123,6 +134,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </div>
 </header>
 
+<table class="pg"><thead><tr><td></td></tr></thead><tfoot><tr><td></td></tr></tfoot><tbody><tr><td class="pg-c">
 <div class="main" id="main-content" style="display:none;">
 <div class="sec">
 <div class="sec-h">Dati macchina</div>
@@ -208,7 +220,14 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 <div class="tlabel">Idoneità igienica dopo l'intervento</div>
 <div class="igwrap">
 <button class="igbtn" id="ig-ok" onclick="setIg('OK')">OK — Idoneità igienica ripristinata</button>
-<button class="igbtn" id="ig-nok" onclick="setIg('NOK')">NOK — Idoneità igienica NON ripristinata</button>
+<button class="igbtn" id="ig-nok" onclick="setIg('Non necessaria')">Non necessaria — intervento su parti non a contatto con il prodotto</button>
+</div>
+<div id="integ-box" style="display:none;margin-top:14px;">
+<div class="tlabel">Integrità apparecchio (guarnizioni, portella, chiusino)</div>
+<div class="igwrap sm">
+<button class="igbtn sm" id="ia-ok" onclick="setIa('OK')">OK</button>
+<button class="igbtn sm" id="ia-nok" onclick="setIa('NOK')">NOK — anomalia</button>
+</div>
 </div>
 </div>
 </div>
@@ -244,6 +263,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#212529;min-he
 </div>
 </div></div>
 </div>
+</td></tr></tbody></table>
 
 <div class="subbar" id="subbar" style="display:none;">
 <div class="subinfo" id="subinfo">Seleziona tipo e compila i campi</div>
@@ -319,7 +339,9 @@ var PITTO_RISK = {
 // puntano al sito pubblicato, perché accanto al file non ci sono index/calendario/pittogrammi.
 var BASE = location.protocol === "file:" ? "https://qsa-privi.github.io/manutenzione-macchine/" : "";
 var MAC = new URLSearchParams(location.search).get('m');
-var macchina = null, piano = [], storico = [], tipo = "", ig = "";
+var macchina = null, piano = [], storico = [], tipo = "", ig = "", ia = "";
+// Controllo integrità (guarnizioni, portella, chiusino) richiesto solo sulle autoclavi
+function isAutoclave() { return !!macchina && String(macchina.Linea || "") === "Autoclavi"; }
 var isAdmin = false;
 
 /* ---- JSONP / POST, stesso pattern del Portale QSE ---- */
@@ -374,6 +396,7 @@ function caricaTutto() {
 
       if (!macchina) { renderNotFound(); return; }
       document.getElementById("main-content").style.display = "block";
+      document.getElementById("integ-box").style.display = isAutoclave() ? "block" : "none";
       renderHeader();
       renderMcard();
       renderManualeLink();
@@ -592,13 +615,19 @@ function setPiano(val) {
 function setIg(v) {
   ig = v;
   document.getElementById("ig-ok").className = "igbtn" + (v === "OK" ? " ok" : "");
-  document.getElementById("ig-nok").className = "igbtn" + (v === "NOK" ? " nok" : "");
+  document.getElementById("ig-nok").className = "igbtn" + (v === "Non necessaria" ? " nn" : "");
+  aggInfo();
+}
+function setIa(v) {
+  ia = v;
+  document.getElementById("ia-ok").className = "igbtn sm" + (v === "OK" ? " ok" : "");
+  document.getElementById("ia-nok").className = "igbtn sm" + (v === "NOK" ? " nok" : "");
   aggInfo();
 }
 function aggInfo() {
-  var ok = tipo && ig && document.getElementById("int-manut").value.trim() && document.getElementById("int-desc").value.trim();
+  var ok = tipo && ig && (!isAutoclave() || ia) && document.getElementById("int-manut").value.trim() && document.getElementById("int-desc").value.trim();
   document.getElementById("subbar").style.display = "flex";
-  document.getElementById("subinfo").textContent = ok ? "Pronto — " + tipo + " | Igienica: " + ig : "Compila tutti i campi per salvare";
+  document.getElementById("subinfo").textContent = ok ? "Pronto — " + tipo + " | Igienica: " + ig + (isAutoclave() ? " | Integrità: " + ia : "") : "Compila tutti i campi per salvare";
 }
 function salvaIntervento() {
   var mn = document.getElementById("int-manut").value.trim();
@@ -606,17 +635,20 @@ function salvaIntervento() {
   var dt = document.getElementById("int-data").value;
   if (!tipo) { modal("", "Tipo mancante", "Seleziona il tipo di intervento."); return; }
   if (!ig) { modal("", "Campo mancante", "Indica l'idoneità igienica."); return; }
+  if (isAutoclave() && !ia) { modal("", "Campo mancante", "Indica l'integrità dell'apparecchio (guarnizioni, portella, chiusino)."); return; }
   if (!mn) { modal("", "Campo mancante", "Inserisci il nome del manutentore."); return; }
   if (!ds) { modal("", "Campo mancante", "Inserisci la descrizione."); return; }
   var btn = document.getElementById("btn-salva");
   btn.disabled = true; btn.textContent = "Salvataggio...";
-  post('write', 'Interventi Manutenzione', { "Codice Macchina": MAC, Data: dt, Tipo: tipo, Manutentore: mn, Descrizione: ds, "Idoneita Igienica": ig, "Piano ID": pianoIdSelezionato === "STR" ? "" : pianoIdSelezionato })
+  post('write', 'Interventi Manutenzione', { "Codice Macchina": MAC, Data: dt, Tipo: tipo, Manutentore: mn, Descrizione: ds, "Idoneita Igienica": ig, "Integrita Apparecchio": isAutoclave() ? ia : "", "Piano ID": pianoIdSelezionato === "STR" ? "" : pianoIdSelezionato })
     .then(function (j) {
       btn.disabled = false; btn.textContent = "Salva intervento";
-      tipo = ""; ig = ""; pianoIdSelezionato = "";
+      tipo = ""; ig = ""; ia = ""; pianoIdSelezionato = "";
       document.getElementById("int-piano").value = "";
       document.getElementById("ig-ok").className = "igbtn";
       document.getElementById("ig-nok").className = "igbtn";
+      document.getElementById("ia-ok").className = "igbtn sm";
+      document.getElementById("ia-nok").className = "igbtn sm";
       document.getElementById("int-manut").value = "";
       document.getElementById("int-desc").value = "";
       document.getElementById("int-data").valueAsDate = new Date();
@@ -660,14 +692,21 @@ function renderStorico() {
   var c = document.getElementById("storico");
   if (!storico.length) { c.innerHTML = "<div class='s-empty'>Nessun intervento registrato.</div>"; return; }
   c.innerHTML = storico.map(function (i) {
-    return "<div class='icard " + (i["Idoneita Igienica"] === "NOK" ? "nok" : "") + "'>" +
+    var integ = i["Integrita Apparecchio"];
+    return "<div class='icard " + (i["Idoneita Igienica"] === "NOK" || integ === "NOK" ? "nok" : "") + "'>" +
       "<div class='icard-top'>" +
       "<span class='itipo" + (i.Tipo === "Straordinaria" ? " str" : "") + "'>" + esc(i.Tipo) + "</span>" +
       "<span class='idt'> " + esc(formatData(i.Data)) + "</span>" +
       "<span class='imn'> " + esc(i.Manutentore) + "</span>" +
       "</div>" +
       "<div class='idesc'>" + esc(i.Descrizione) + "</div>" +
-      "<span class='iiig " + (i["Idoneita Igienica"] === "OK" ? "iig-ok" : "iig-nok") + "'>" + (i["Idoneita Igienica"] === "OK" ? "Idoneità igienica: OK" : "Idoneità igienica: NOK") + "</span>" +
+      (function () {
+        // "Non necessaria" = intervento su parti non a contatto con il prodotto; "NOK" solo su dati storici
+        var v = String(i["Idoneita Igienica"] || "");
+        var cl = v === "OK" ? "iig-ok" : v === "Non necessaria" ? "iig-nn" : "iig-nok";
+        return v ? "<span class='iiig " + cl + "'>Idoneità igienica: " + esc(v) + "</span>" : "";
+      })() +
+      (integ ? " <span class='iiig " + (integ === "OK" ? "iig-ok" : "iig-nok") + "'>Integrità apparecchio: " + esc(integ) + "</span>" : "") +
       "</div>";
   }).join("");
 }
